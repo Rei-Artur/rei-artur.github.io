@@ -3,38 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRUMO - Calculadora de Lucro para Vendedores</title>
+    <title>PRUMO | O Lucro Real na Palma da sua Mão</title>
+    
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; text-align: center; }
-        header { background: #2c3e50; color: white; padding: 40px 20px; }
-        .container { max-width: 800px; margin: auto; padding: 20px; }
-        .btn { display: inline-block; background: #27ae60; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 20px; }
-        .btn:hover { background: #2ecc71; }
-        footer { margin-top: 50px; padding: 20px; font-size: 0.9em; color: #7f8c8d; }
-        a { color: #2980b9; text-decoration: none; }
+        :root {
+            --primary: #2ecc71;
+            --dark: #0f172a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --text: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--dark);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            z-index: -1;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            color: #94a3b8;
+            margin-bottom: 40px;
+        }
+
+        .btn-download {
+            background: var(--primary);
+            color: var(--dark);
+            padding: 18px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+            z-index: 10;
+        }
+
+        .btn-download:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
+        }
+
+        /* Mockup de Perspectiva Real com Imagem */
+        .mockup-container {
+            margin-top: 60px;
+            perspective: 1500px;
+        }
+
+        .mockup-img {
+            width: 280px;
+            height: auto;
+            border-radius: 30px;
+            border: 8px solid #334155;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+            transform: rotateX(15deg) rotateY(-10deg) rotateZ(5deg);
+            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .mockup-img:hover {
+            transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1.05);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 100px 5vw;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+
+        .card:hover { border-color: var(--primary); transform: translateY(-10px); }
+        .card i { color: var(--primary); margin-bottom: 20px; }
+
+        footer {
+            padding: 60px 20px;
+            text-align: center;
+            border-top: 1px solid var(--glass);
+            color: #64748b;
+        }
+
+        footer a { color: #94a3b8; text-decoration: none; margin: 0 10px; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>PRUMO</h1>
-    <p>A calculadora de lucro definitiva para MEI e Marketplace</p>
-</header>
+    <div class="bg-gradient"></div>
 
-<div class="container">
-    <h2>Pare de perder dinheiro com taxas ocultas.</h2>
-    <p>O PRUMO ajuda você a calcular o preço de venda exato para Shopee, iFood e outros marketplaces, descontando taxas fixas e porcentagens automaticamente.</p>
-    
-    <a href="#" class="btn">BAIXAR GRÁTIS NO APKPURE</a>
-</div>
+    <section class="hero">
+        <h1 data-aos="zoom-in">PRUMO</h1>
+        <p data-aos="fade-up" data-aos-delay="200">
+            A calculadora inteligente que separa o seu lucro das taxas abusivas dos marketplaces.
+        </p>
+        
+        <a href="https://m.apkpure.com/br/prumo/com.aruturo.prumo" class="btn-download" data-aos="fade-up" data-aos-delay="400">
+            BAIXAR AGORA NO APKPURE
+        </a>
+        
+        <div class="mockup-container" data-aos="fade-up" data-aos-delay="600">
+            <img src="assets/img/print.png" alt="Interface do App Prumo" class="mockup-img">
+        </div>
+    </section>
 
-<footer>
-    <p>&copy; 2026 Aruturo Dev - Todos os direitos reservados.</p>
-    <p>
-        <a href="privacy.html">Política de Privacidade</a> | 
-        <a href="app-ads.txt">app-ads.txt</a>
-    </p>
-</footer>
+    <section class="features">
+        <div class="card" data-aos="fade-right">
+            <i data-lucide="calculator" size="40"></i>
+            <h3>Cálculo Preciso</h3>
+            <p>Desconte taxas fixas e variáveis automaticamente antes de definir seu preço.</p>
+        </div>
+        <div class="card" data-aos="fade-up">
+            <i data-lucide="pie-chart" size="40"></i>
+            <h3>Visão Gráfica</h3>
+            <p>Entenda visualmente para onde vai cada centavo da sua venda.</p>
+        </div>
+        <div class="card" data-aos="fade-left">
+            <i data-lucide="zap" size="40"></i>
+            <h3>Agilidade MEI</h3>
+            <p>Interface pensada para quem está no campo de batalha, sem planilhas chatas.</p>
+        </div>
+    </section>
 
+    <footer>
+        <p>&copy; 2026 Aruturo Dev</p>
+        <div style="margin-top: 15px;">
+            <a href="privacy.html">Privacidade</a>
+            <a href="app-ads.txt" target="_blank">app-ads.txt</a>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 1000, once: true });
+        lucide.createIcons();
+    </script>
 </body>
 </html>
