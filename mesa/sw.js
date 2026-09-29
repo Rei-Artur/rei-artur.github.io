@@ -1,7 +1,7 @@
 // Mesa de Pensamento: abre rápido e funciona sem internet.
 // Página: tenta a rede primeiro (até 3 s) para já pegar a versão nova; sem rede, usa o cache.
 // Outros arquivos: devolve do cache e atualiza em segundo plano.
-var CACHE = 'mesa-818c39fca5';
+var CACHE = 'mesa-5158dbe93e';
 var FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (e) {
@@ -10,7 +10,7 @@ self.addEventListener('install', function (e) {
 
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (keys) {
-    return Promise.all(keys.filter(function (k) { return k.indexOf('mesa-') === 0 && k !== CACHE; }).map(function (k) { return caches.delete(k); }));
+    return Promise.all(keys.filter(function (k) { return k.indexOf('mesa-') === 0 && k !== CACHE && k !== 'mesa-share'; }).map(function (k) { return caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
 });
 
@@ -23,8 +23,24 @@ function fromNetwork(req, key, c) {
 
 self.addEventListener('fetch', function (e) {
   var req = e.request;
-  if (req.method !== 'GET') return;
   var url = new URL(req.url);
+  // "Compartilhar > Mesa" (Android): guarda o texto e abre a Mesa com ele.
+  if (req.method === 'POST' && url.origin === self.location.origin && url.pathname.endsWith('/share')) {
+    e.respondWith((async function () {
+      var text = '';
+      try {
+        var fd = await req.formData();
+        text = [fd.get('title'), fd.get('text'), fd.get('url')].filter(Boolean).join('\n');
+        var files = fd.getAll('files');
+        for (var i = 0; i < files.length; i++) { if (files[i] && files[i].text) text += (text ? '\n' : '') + await files[i].text(); }
+      } catch (err) {}
+      var c = await caches.open('mesa-share');
+      await c.put('./__shared', new Response(text, { headers: { 'content-type': 'text/plain;charset=utf-8' } }));
+      return Response.redirect('./?shared=1', 303);
+    })());
+    return;
+  }
+  if (req.method !== 'GET') return;
   if (url.origin !== self.location.origin) return; // chamadas às IAs passam direto
   if (req.mode === 'navigate') {
     e.respondWith(caches.open(CACHE).then(function (c) {
