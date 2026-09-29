@@ -1,7 +1,7 @@
 // Mesa de Pensamento: abre rápido e funciona sem internet.
 // Página: tenta a rede primeiro (até 3 s) para já pegar a versão nova; sem rede, usa o cache.
 // Outros arquivos: devolve do cache e atualiza em segundo plano.
-var CACHE = 'mesa-5158dbe93e';
+var CACHE = 'mesa-4b04636db8';
 var FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (e) {
