@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src https://generativelanguage.googleapis.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src https://generativelanguage.googleapis.com https://api.anthropic.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Mesa de Pensamento</title>
 <meta name="description" content="Despeje o pensamento e veja virar mapa e cenários.">
@@ -260,6 +260,11 @@ textarea.ta{min-height:130px;font-family:var(--mono);font-size:.84rem;resize:ver
 .icogrid button.on{background:var(--accent-bg);color:var(--accent)}
 .card{background:var(--raise);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
 .check{display:flex;gap:10px;align-items:center;font-size:.92rem}
+.seg.pick{display:grid;grid-template-columns:1fr 1fr}
+.seg.pick button{justify-content:center;padding:10px;font-size:.95rem}
+.seg.pick button svg.i{width:17px;height:17px}
+.seg.pick button span{display:inline!important}
+.steps a{color:var(--accent);font-weight:650}
 .check input{width:20px;height:20px;accent-color:var(--accent)}
 
 /* avisos */
@@ -315,7 +320,7 @@ textarea.ta{min-height:130px;font-family:var(--mono);font-size:.84rem;resize:ver
 <script>
 (function(){
 'use strict';
-var VERSION='f6e5a75828';
+var VERSION='818c39fca5';
 var ICONS={"wallet":"<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"/>","banknote":"<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M6 12h.01M18 12h.01\"/>","credit-card":"<rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\"/><line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\"/><path d=\"M6 14h2\"/>","piggy-bank":"<path d=\"M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z\"/><path d=\"M16 10h.01\"/><path d=\"M2 8v1a2 2 0 0 0 2 2h1\"/>","hand-coins":"<path d=\"M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17\"/><path d=\"m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9\"/><path d=\"m2 16 6 6\"/><circle cx=\"16\" cy=\"9\" r=\"2.9\"/><circle cx=\"6\" cy=\"5\" r=\"3\"/>","receipt":"<path d=\"M12 17V7\"/><path d=\"M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8\"/><path d=\"M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z\"/>","landmark":"<path d=\"M10 18v-7\"/><path d=\"M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z\"/><path d=\"M14 18v-7\"/><path d=\"M18 18v-7\"/><path d=\"M3 22h18\"/><path d=\"M6 18v-7\"/>","percent":"<line x1=\"19\" x2=\"5\" y1=\"5\" y2=\"19\"/><circle cx=\"6.5\" cy=\"6.5\" r=\"2.5\"/><circle cx=\"17.5\" cy=\"17.5\" r=\"2.5\"/>","calculator":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\"/><line x1=\"8\" x2=\"16\" y1=\"6\" y2=\"6\"/><line x1=\"16\" x2=\"16\" y1=\"14\" y2=\"18\"/><path d=\"M16 10h.01\"/><path d=\"M12 10h.01\"/><path d=\"M8 10h.01\"/><path d=\"M12 14h.01\"/><path d=\"M8 14h.01\"/><path d=\"M12 18h.01\"/><path d=\"M8 18h.01\"/>","coins":"<path d=\"M13.744 17.736a6 6 0 1 1-7.48-7.48\"/><path d=\"M15 6h1v4\"/><path d=\"m6.134 14.768.866-.5 2 3.464\"/><circle cx=\"16\" cy=\"8\" r=\"6\"/>","trending-up":"<path d=\"M16 7h6v6\"/><path d=\"m22 7-8.5 8.5-5-5L2 17\"/>","trending-down":"<path d=\"M16 17h6v-6\"/><path d=\"m22 17-8.5-8.5-5 5L2 7\"/>","chart-line":"<path d=\"M3 3v16a2 2 0 0 0 2 2h16\"/><path d=\"m19 9-5 5-4-4-3 3\"/>","calendar":"<path d=\"M8 2v3\"/><path d=\"M16 2v3\"/><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M3 9h18\"/>","calendar-clock":"<path d=\"M16 14v2.2l1.6 1\"/><path d=\"M16 2v3\"/><path d=\"M21 7.338V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h2.338\"/><path d=\"M3 9h5.859\"/><path d=\"M8 2v3\"/><circle cx=\"16\" cy=\"16\" r=\"6\"/>","calendar-check":"<path d=\"M8 2v3\"/><path d=\"M16 2v3\"/><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M3 9h18\"/><path d=\"m9 15 2 2 4-4\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>","alarm-clock":"<circle cx=\"12\" cy=\"13\" r=\"8\"/><path d=\"M12 9v4l2 2\"/><path d=\"M5 3 2 6\"/><path d=\"m22 6-3-3\"/><path d=\"M6.38 18.7 4 21\"/><path d=\"M17.64 18.67 20 21\"/>","timer":"<line x1=\"10\" x2=\"14\" y1=\"2\" y2=\"2\"/><line x1=\"12\" x2=\"15\" y1=\"14\" y2=\"11\"/><circle cx=\"12\" cy=\"14\" r=\"8\"/>","hourglass":"<path d=\"M5 22h14\"/><path d=\"M5 2h14\"/><path d=\"M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22\"/><path d=\"M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2\"/>","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>","building-2":"<path d=\"M10 12h4\"/><path d=\"M10 8h4\"/><path d=\"M14 21v-3a2 2 0 0 0-4 0v3\"/><path d=\"M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2\"/><path d=\"M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16\"/>","briefcase":"<path d=\"M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\"/><rect width=\"20\" height=\"14\" x=\"2\" y=\"6\" rx=\"2\"/>","graduation-cap":"<path d=\"M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z\"/><path d=\"M22 10v6\"/><path d=\"M6 12.5V16a6 3 0 0 0 12 0v-3.5\"/>","book-open":"<path d=\"M12 5v16\"/><path d=\"M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z\"/>","school":"<path d=\"M14 21v-3a2 2 0 0 0-4 0v3\"/><path d=\"M18 4.933V21\"/><path d=\"m4 6 7.106-3.79a2 2 0 0 1 1.788 0L20 6\"/><path d=\"m6 11-3.52 2.147a1 1 0 0 0-.48.854V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a1 1 0 0 0-.48-.853L18 11\"/><path d=\"M6 4.933V21\"/><circle cx=\"12\" cy=\"9\" r=\"2\"/>","plane":"<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\"/>","bus":"<path d=\"M8 6v6\"/><path d=\"M15 6v6\"/><path d=\"M2 12h19.6\"/><path d=\"M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3\"/><circle cx=\"7\" cy=\"18\" r=\"2\"/><path d=\"M9 18h5\"/><circle cx=\"16\" cy=\"18\" r=\"2\"/>","car":"<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\"/><circle cx=\"7\" cy=\"17\" r=\"2\"/><path d=\"M9 17h6\"/><circle cx=\"17\" cy=\"17\" r=\"2\"/>","bike":"<circle cx=\"18.5\" cy=\"17.5\" r=\"3.5\"/><circle cx=\"5.5\" cy=\"17.5\" r=\"3.5\"/><circle cx=\"15\" cy=\"5\" r=\"1\"/><path d=\"M12 17.5V14l-3-3 4-3 2 3h2\"/>","footprints":"<path d=\"M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z\"/><path d=\"M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z\"/><path d=\"M16 17h4\"/><path d=\"M4 13h4\"/>","map-pin":"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/>","map":"<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\"/><path d=\"M15 5.764v15\"/><path d=\"M9 3.236v15\"/>","globe":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20\"/><path d=\"M2 12h20\"/>","luggage":"<path d=\"M6 20a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2\"/><path d=\"M8 18V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v14\"/><path d=\"M10 20h4\"/><circle cx=\"16\" cy=\"20\" r=\"2\"/><circle cx=\"8\" cy=\"20\" r=\"2\"/>","phone":"<path d=\"M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384\"/>","message-circle":"<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\"/>","mail":"<path d=\"m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7\"/><rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\"/>","send":"<path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\"/><path d=\"m21.854 2.147-10.94 10.939\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><path d=\"M16 3.128a4 4 0 0 1 0 7.744\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/>","user":"<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>","baby":"<path d=\"M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5\"/><path d=\"M15 12h.01\"/><path d=\"M19.38 6.813A9 9 0 0 1 20.8 10.2a2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1\"/><path d=\"M9 12h.01\"/>","heart":"<path d=\"M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5\"/>","heart-pulse":"<path d=\"M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5\"/><path d=\"M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27\"/>","stethoscope":"<path d=\"M11 2v2\"/><path d=\"M5 2v2\"/><path d=\"M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1\"/><path d=\"M8 15a6 6 0 0 0 12 0v-3\"/><circle cx=\"20\" cy=\"10\" r=\"2\"/>","pill":"<path d=\"m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z\"/><path d=\"m8.5 8.5 7 7\"/>","dumbbell":"<path d=\"M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z\"/><path d=\"m2.5 21.5 1.4-1.4\"/><path d=\"m20.1 3.9 1.4-1.4\"/><path d=\"M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z\"/><path d=\"m9.6 14.4 4.8-4.8\"/>","utensils":"<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\"/><path d=\"M7 2v20\"/><path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\"/>","coffee":"<path d=\"M10 2v2\"/><path d=\"M14 2v2\"/><path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\"/><path d=\"M6 2v2\"/>","shopping-cart":"<path d=\"m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18\"/><path d=\"M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25\"/><circle cx=\"18\" cy=\"20\" r=\"2\"/><circle cx=\"8\" cy=\"20\" r=\"2\"/>","shopping-bag":"<path d=\"M16 10a4 4 0 0 1-8 0\"/><path d=\"M3.103 6.034h17.794\"/><path d=\"M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z\"/>","gift":"<path d=\"M12 7v14\"/><path d=\"M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8\"/><path d=\"M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5\"/><rect x=\"3\" y=\"7\" width=\"18\" height=\"4\" rx=\"1\"/>","gamepad-2":"<line x1=\"6\" x2=\"10\" y1=\"11\" y2=\"11\"/><line x1=\"8\" x2=\"8\" y1=\"9\" y2=\"13\"/><line x1=\"15\" x2=\"15.01\" y1=\"12\" y2=\"12\"/><line x1=\"18\" x2=\"18.01\" y1=\"10\" y2=\"10\"/><path d=\"M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z\"/>","music":"<path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/>","camera":"<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\"/><circle cx=\"12\" cy=\"13\" r=\"3\"/>","tv":"<path d=\"m17 2-5 5-5-5\"/><rect width=\"20\" height=\"15\" x=\"2\" y=\"7\" rx=\"2\"/>","laptop":"<path d=\"M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z\"/><path d=\"M20.054 15.987H3.946\"/>","smartphone":"<rect width=\"14\" height=\"20\" x=\"5\" y=\"2\" rx=\"2\" ry=\"2\"/><path d=\"M12 18h.01\"/>","monitor":"<rect width=\"20\" height=\"14\" x=\"2\" y=\"3\" rx=\"2\"/><line x1=\"8\" x2=\"16\" y1=\"21\" y2=\"21\"/><line x1=\"12\" x2=\"12\" y1=\"17\" y2=\"21\"/>","code":"<path d=\"m16 18 6-6-6-6\"/><path d=\"m8 6-6 6 6 6\"/>","bot":"<path d=\"M12 8V4H8\"/><rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\"/><path d=\"M2 14h2\"/><path d=\"M20 14h2\"/><path d=\"M15 13v2\"/><path d=\"M9 13v2\"/>","cpu":"<path d=\"M12 20v2\"/><path d=\"M12 2v2\"/><path d=\"M17 20v2\"/><path d=\"M17 2v2\"/><path d=\"M2 12h2\"/><path d=\"M2 17h2\"/><path d=\"M2 7h2\"/><path d=\"M20 12h2\"/><path d=\"M20 17h2\"/><path d=\"M20 7h2\"/><path d=\"M7 20v2\"/><path d=\"M7 2v2\"/><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\"/><rect x=\"8\" y=\"8\" width=\"8\" height=\"8\" rx=\"1\"/>","brain":"<path d=\"M12 18V5\"/><path d=\"M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4\"/><path d=\"M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5\"/><path d=\"M17.997 5.125a4 4 0 0 1 2.526 5.77\"/><path d=\"M18 18a4 4 0 0 0 2-7.464\"/><path d=\"M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517\"/><path d=\"M6 18a4 4 0 0 1-2-7.464\"/><path d=\"M6.003 5.125a4 4 0 0 0-2.526 5.77\"/>","lightbulb":"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\"/><path d=\"M9 18h6\"/><path d=\"M10 22h4\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"6\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/>","flag":"<path d=\"M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528\"/>","trophy":"<path d=\"M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2\"/><path d=\"M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2\"/><path d=\"M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3\"/><path d=\"M4 22h16\"/><path d=\"M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z\"/><path d=\"M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3\"/>","medal":"<path d=\"M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15\"/><path d=\"M11 12 5.12 2.2\"/><path d=\"m13 12 5.88-9.8\"/><path d=\"M8 7h8\"/><circle cx=\"12\" cy=\"17\" r=\"5\"/><path d=\"M12 18v-2h-.5\"/>","rocket":"<path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\"/><path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09\"/><path d=\"M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z\"/><path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05\"/>","zap":"<path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\"/>","battery-low":"<path d=\"M22 14v-4\"/><path d=\"M6 14v-4\"/><rect x=\"2\" y=\"6\" width=\"16\" height=\"12\" rx=\"2\"/>","shield":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/>","shield-alert":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/>","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>","key":"<path d=\"m2 21 9.6-9.6\"/><path d=\"m7.5 15.5 2.3 2.3a1 1 0 0 1 0 1.4l-2.1 2.1a1 1 0 0 1-1.4 0L4 19\"/><circle cx=\"15.5\" cy=\"7.5\" r=\"5.5\"/>","scale":"<path d=\"M12 3v18\"/><path d=\"m19 8 3 8a5 5 0 0 1-6 0zV7\"/><path d=\"M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1\"/><path d=\"m5 8 3 8a5 5 0 0 1-6 0zV7\"/><path d=\"M7 21h10\"/>","gavel":"<path d=\"m14 13-8.381 8.38a1 1 0 0 1-3.001-3l8.384-8.381\"/><path d=\"m16 16 6-6\"/><path d=\"m21.5 10.5-8-8\"/><path d=\"m8 8 6-6\"/><path d=\"m8.5 7.5 8 8\"/>","file-text":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\"/><path d=\"M14 2v5a1 1 0 0 0 1 1h5\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/>","file-signature":"<path d=\"M14.364 13.634a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506l4.013-4.009a1 1 0 0 0-3.004-3.004z\"/><path d=\"M14.487 7.858A1 1 0 0 1 14 7V2\"/><path d=\"M20 19.645V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l2.516 2.516\"/><path d=\"M8 18h1\"/>","clipboard-list":"<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/><path d=\"M12 11h4\"/><path d=\"M12 16h4\"/><path d=\"M8 11h.01\"/><path d=\"M8 16h.01\"/>","list-checks":"<path d=\"M13 5h8\"/><path d=\"M13 12h8\"/><path d=\"M13 19h8\"/><path d=\"m3 17 2 2 4-4\"/><path d=\"m3 7 2 2 4-4\"/>","circle-check":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m16 9-5.5 5.5L8 12\"/>","circle-x":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m15 9-6 6\"/><path d=\"m9 9 6 6\"/>","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/>","circle-help":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"/><path d=\"M12 17h.01\"/>","search":"<path d=\"m21 21-4.34-4.34\"/><circle cx=\"11\" cy=\"11\" r=\"8\"/>","repeat":"<path d=\"m17 2 4 4-4 4\"/><path d=\"M3 11v-1a4 4 0 0 1 4-4h14\"/><path d=\"m7 22-4-4 4-4\"/><path d=\"M21 13v1a4 4 0 0 1-4 4H3\"/>","refresh-cw":"<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/>","split":"<path d=\"M16 3h5v5\"/><path d=\"M8 3H3v5\"/><path d=\"M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3\"/><path d=\"m15 9 6-6\"/>","git-branch":"<path d=\"M15 6a9 9 0 0 0-9 9V3\"/><circle cx=\"18\" cy=\"6\" r=\"3\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/>","layers":"<path d=\"M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z\"/><path d=\"M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12\"/><path d=\"M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17\"/>","puzzle":"<path d=\"M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z\"/>","wrench":"<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z\"/>","hammer":"<path d=\"m15 12-9.373 9.373a1 1 0 0 1-3.001-3L12 9\"/><path d=\"m18 15 4-4\"/><path d=\"m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172v-.344a2 2 0 0 0-.586-1.414l-1.657-1.657A6 6 0 0 0 12.516 3H9l1.243 1.243A6 6 0 0 1 12 8.485V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5\"/>","settings":"<path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/>","moon":"<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\"/>","cloud-rain":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\"/><path d=\"M16 14v6\"/><path d=\"M8 14v6\"/><path d=\"M12 16v6\"/>","leaf":"<path d=\"M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20\"/><path d=\"M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13\"/>","sprout":"<path d=\"M14 9.536V7a4 4 0 0 1 4-4h1.5a.5.5 0 0 1 .5.5V5a4 4 0 0 1-4 4 4 4 0 0 0-4 4c0 2 1 3 1 5a5 5 0 0 1-1 3\"/><path d=\"M4 9a5 5 0 0 1 8 4 5 5 0 0 1-8-4\"/><path d=\"M5 21h14\"/>","flame":"<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\"/>","snowflake":"<path d=\"m10 20-1.25-2.5L6 18\"/><path d=\"M10 4 8.75 6.5 6 6\"/><path d=\"m14 20 1.25-2.5L18 18\"/><path d=\"m14 4 1.25 2.5L18 6\"/><path d=\"m17 21-3-6h-4\"/><path d=\"m17 3-3 6 1.5 3\"/><path d=\"M2 12h6.5L10 9\"/><path d=\"m20 10-1.5 2 1.5 2\"/><path d=\"M22 12h-6.5L14 15\"/><path d=\"m4 10 1.5 2L4 14\"/><path d=\"m7 21 3-6-1.5-3\"/><path d=\"m7 3 3 6h4\"/>","church":"<path d=\"M10 9h4\"/><path d=\"M12 7v5\"/><path d=\"M14 21v-3a2 2 0 0 0-4 0v3\"/><path d=\"m18 9 3.52 2.147a1 1 0 0 1 .48.854V19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6.999a1 1 0 0 1 .48-.854L6 9\"/><path d=\"M6 21V7a1 1 0 0 1 .376-.782l5-3.999a1 1 0 0 1 1.249.001l5 4A1 1 0 0 1 18 7v14\"/>","languages":"<path d=\"m5 8 6 6\"/><path d=\"m4 14 6-6 2-3\"/><path d=\"M2 5h12\"/><path d=\"M7 2h1\"/><path d=\"m22 22-5-10-5 10\"/><path d=\"M14 18h6\"/>","handshake":"<path d=\"m11 17 2 2a1 1 0 1 0 3-3\"/><path d=\"m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4\"/><path d=\"m21 3 1 11h-2\"/><path d=\"M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3\"/><path d=\"M3 4h8\"/>","package":"<path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\"/><path d=\"M12 22V12\"/><polyline points=\"3.29 7 12 12 20.71 7\"/><path d=\"m7.5 4.27 9 5.15\"/>","truck":"<path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\"/><path d=\"M15 18H9\"/><path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\"/><circle cx=\"17\" cy=\"18\" r=\"2\"/><circle cx=\"7\" cy=\"18\" r=\"2\"/>","bed":"<path d=\"M2 4v16\"/><path d=\"M2 8h18a2 2 0 0 1 2 2v10\"/><path d=\"M2 17h20\"/><path d=\"M6 8v9\"/>","bath":"<path d=\"M10 4 8 6\"/><path d=\"M17 19v2\"/><path d=\"M2 12h20\"/><path d=\"M7 19v2\"/><path d=\"M9 5 7.621 3.621A2.121 2.121 0 0 0 4 5v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5\"/>","shirt":"<path d=\"M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z\"/>","scissors":"<circle cx=\"6\" cy=\"6\" r=\"3\"/><path d=\"M8.12 8.12 12 12\"/><path d=\"M20 4 8.12 15.88\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><path d=\"M14.8 14.8 20 20\"/>","pen-line":"<path d=\"M13 21h8\"/><path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\"/>","mic":"<path d=\"M12 19v3\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"/><rect x=\"9\" y=\"2\" width=\"6\" height=\"13\" rx=\"3\"/>","headphones":"<path d=\"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3\"/>","film":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M7 3v18\"/><path d=\"M3 7.5h4\"/><path d=\"M3 12h18\"/><path d=\"M3 16.5h4\"/><path d=\"M17 3v18\"/><path d=\"M17 7.5h4\"/><path d=\"M17 16.5h4\"/>","palette":"<path d=\"M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z\"/><circle cx=\"13.5\" cy=\"6.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"17.5\" cy=\"10.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"6.5\" cy=\"12.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"8.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"/>","sparkles":"<path d=\"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z\"/><path d=\"M20 2v4\"/><path d=\"M22 4h-4\"/><circle cx=\"4\" cy=\"20\" r=\"2\"/>","crown":"<path d=\"M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z\"/><path d=\"M5 21h14\"/>","star":"<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\"/>","hand-heart":"<path d=\"M11 14h2a2 2 0 0 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16\"/><path d=\"m14.45 13.39 5.05-4.694C20.196 8 21 6.85 21 5.75a2.75 2.75 0 0 0-4.797-1.837.276.276 0 0 1-.406 0A2.75 2.75 0 0 0 11 5.75c0 1.2.802 2.248 1.5 2.946L16 11.95\"/><path d=\"m2 15 6 6\"/><path d=\"m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a1 1 0 0 0-2.75-2.91\"/>","hand-helping":"<path d=\"M11 12h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 14\"/><path d=\"m7 18 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9\"/><path d=\"m2 13 6 6\"/>","ban":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M4.929 4.929 19.07 19.071\"/>","pause":"<rect x=\"14\" y=\"3\" width=\"5\" height=\"18\" rx=\"1\"/><rect x=\"5\" y=\"3\" width=\"5\" height=\"18\" rx=\"1\"/>","play":"<path d=\"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z\"/>","dice-5":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\"/><path d=\"M16 8h.01\"/><path d=\"M8 8h.01\"/><path d=\"M8 16h.01\"/><path d=\"M16 16h.01\"/><path d=\"M12 12h.01\"/>","dog":"<path d=\"M11.25 16.25h1.5L12 17z\"/><path d=\"M16 14v.5\"/><path d=\"M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309\"/><path d=\"M8 14v.5\"/><path d=\"M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5\"/>","cat":"<path d=\"M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z\"/><path d=\"M8 14v.5\"/><path d=\"M16 14v.5\"/><path d=\"M11.25 16.25h1.5L12 17l-.75-.75Z\"/>","sofa":"<path d=\"M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3\"/><path d=\"M2 16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z\"/><path d=\"M4 18v2\"/><path d=\"M20 18v2\"/><path d=\"M12 4v9\"/>","menu":"<path d=\"M4 5h16\"/><path d=\"M4 12h16\"/><path d=\"M4 19h16\"/>","undo-2":"<path d=\"M9 14 4 9l5-5\"/><path d=\"M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11\"/>","plus":"<path d=\"M5 12h14\"/><path d=\"M12 5v14\"/>","minus":"<path d=\"M5 12h14\"/>","maximize":"<path d=\"M8 3H5a2 2 0 0 0-2 2v3\"/><path d=\"M21 8V5a2 2 0 0 0-2-2h-3\"/><path d=\"M3 16v3a2 2 0 0 0 2 2h3\"/><path d=\"M16 21h3a2 2 0 0 0 2-2v-3\"/>","x":"<path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/>","trash-2":"<path d=\"M10 11v6\"/><path d=\"M14 11v6\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\"/><path d=\"M3 6h18\"/><path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/>","rotate-ccw":"<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/>","arrow-left-right":"<path d=\"M8 3 4 7l4 4\"/><path d=\"M4 7h16\"/><path d=\"m16 21 4-4-4-4\"/><path d=\"M20 17H4\"/>","list-ordered":"<path d=\"M11 5h10\"/><path d=\"M11 12h10\"/><path d=\"M11 19h10\"/><path d=\"M4 4h1v5\"/><path d=\"M4 9h2\"/><path d=\"M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02\"/>","filter":"<path d=\"M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z\"/>","layout-grid":"<rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\"/>","arrow-up":"<path d=\"m5 12 7-7 7 7\"/><path d=\"M12 19V5\"/>","square":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/>","copy":"<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/>","share-2":"<circle cx=\"18\" cy=\"5\" r=\"3\"/><circle cx=\"6\" cy=\"12\" r=\"3\"/><circle cx=\"18\" cy=\"19\" r=\"3\"/><line x1=\"8.59\" x2=\"15.42\" y1=\"13.51\" y2=\"17.49\"/><line x1=\"15.41\" x2=\"8.59\" y1=\"6.51\" y2=\"10.49\"/>","download":"<path d=\"M12 15V3\"/><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><path d=\"m7 10 5 5 5-5\"/>","upload":"<path d=\"M12 3v12\"/><path d=\"m17 8-5-5-5 5\"/><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/>","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\"/><path d=\"m15 5 4 4\"/>","chart-scatter":"<circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"18.5\" cy=\"5.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"11.5\" cy=\"11.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"7.5\" cy=\"16.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"17.5\" cy=\"14.5\" r=\".5\" fill=\"currentColor\"/><path d=\"M3 3v16a2 2 0 0 0 2 2h16\"/>","panel-left":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M9 3v18\"/>","check":"<path d=\"M20 6 9 17l-5-5\"/>","clipboard-paste":"<path d=\"M11 14h10\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v1.344\"/><path d=\"m17 18 4-4-4-4\"/><path d=\"M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 1.793-1.113\"/><rect x=\"8\" y=\"2\" width=\"8\" height=\"4\" rx=\"1\"/>","database":"<ellipse cx=\"12\" cy=\"5\" rx=\"9\" ry=\"3\"/><path d=\"M3 5V19A9 3 0 0 0 21 19V5\"/><path d=\"M3 12A9 3 0 0 0 21 12\"/>","history":"<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/><path d=\"M12 7v5l4 2\"/>","wand-sparkles":"<path d=\"m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72\"/><path d=\"m14 7 3 3\"/><path d=\"M5 6v4\"/><path d=\"M19 14v4\"/><path d=\"M10 2v2\"/><path d=\"M7 8H3\"/><path d=\"M21 16h-4\"/><path d=\"M11 3H9\"/>","cloud-off":"<path d=\"M10.94 5.274A7 7 0 0 1 15.71 10h1.79a4.5 4.5 0 0 1 4.222 6.057\"/><path d=\"M18.796 18.81A4.5 4.5 0 0 1 17.5 19H9A7 7 0 0 1 5.79 5.78\"/><path d=\"m2 2 20 20\"/>","key-round":"<path d=\"M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z\"/><circle cx=\"16.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"/>","info":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4\"/><path d=\"M12 8h.01\"/>","chevron-right":"<path d=\"m9 18 6-6-6-6\"/>","network":"<rect x=\"16\" y=\"16\" width=\"6\" height=\"6\" rx=\"1\"/><rect x=\"2\" y=\"16\" width=\"6\" height=\"6\" rx=\"1\"/><rect x=\"9\" y=\"2\" width=\"6\" height=\"6\" rx=\"1\"/><path d=\"M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3\"/><path d=\"M12 12V8\"/>"};
 var CONTENT_ICONS=["wallet","banknote","credit-card","piggy-bank","hand-coins","receipt","landmark","percent","calculator","coins","trending-up","trending-down","chart-line","calendar","calendar-clock","calendar-check","clock","alarm-clock","timer","hourglass","house","building-2","briefcase","graduation-cap","book-open","school","plane","bus","car","bike","footprints","map-pin","map","globe","luggage","phone","message-circle","mail","send","users","user","baby","heart","heart-pulse","stethoscope","pill","dumbbell","utensils","coffee","shopping-cart","shopping-bag","gift","gamepad-2","music","camera","tv","laptop","smartphone","monitor","code","bot","cpu","brain","lightbulb","target","flag","trophy","medal","rocket","zap","battery-low","shield","shield-alert","lock","key","scale","gavel","file-text","file-signature","clipboard-list","list-checks","circle-check","circle-x","triangle-alert","circle-help","search","repeat","refresh-cw","split","git-branch","layers","puzzle","wrench","hammer","settings","sun","moon","cloud-rain","leaf","sprout","flame","snowflake","church","languages","handshake","package","truck","bed","bath","shirt","scissors","pen-line","mic","headphones","film","palette","sparkles","crown","star","hand-heart","hand-helping","ban","pause","play","dice-5","dog","cat","sofa"];
 
@@ -382,7 +387,12 @@ function checkConta(c){
 function fmtNum(n){ return (Math.round(n*100)/100).toLocaleString('pt-BR',{maximumFractionDigits:2}); }
 
 /* ================= configuração da IA ================= */
-var cfg=Object.assign({key:'',model:'',models:[],manual:false,dicas:true},J(LS.get('mesa:cfg'),{}));
+var cfg=Object.assign({provider:'gemini',key:'',model:'',models:[],ckey:'',cmodel:'claude-sonnet-5-5',cmodels:[],manual:false},J(LS.get('mesa:cfg'),{}));
+cfg.obs=Object.assign({vault:'',pasta:'Mesas',auto:true},cfg.obs||{});
+var PROV={gemini:'Gemini',claude:'Claude'};
+function keyOf(p){ return p==='claude'?cfg.ckey:cfg.key; }
+function aiReady(p){ return !!keyOf(p||cfg.provider); }
+function otherProv(){ return cfg.provider==='claude'?'gemini':'claude'; }
 function saveCfg(){LS.set('mesa:cfg',JSON.stringify(cfg));}
 var DEFAULT_MODELS=['gemini-3.5-flash','gemini-3-flash-preview','gemini-2.5-flash','gemini-2.5-flash-lite'];
 function modelOrder(){
@@ -449,6 +459,64 @@ function callGemini(sys,user,signal,onModel){
   }
   return next();
 }
+/* ---- Claude (API da Anthropic): só Opus e Sonnet 4.6 ou mais novos ---- */
+var CLAUDE_DEFAULT='claude-sonnet-5-5';
+var CLAUDE_STATIC=['claude-sonnet-5-5','claude-opus-5-5','claude-sonnet-5','claude-opus-5','claude-opus-4-8','claude-opus-4-7','claude-opus-4-6','claude-sonnet-4-6'];
+function claudeVer(id){
+  var m=String(id).match(/^claude-(opus|sonnet)-(\d{1,2})(?:-(\d))?(?:-\d{8})?$/); if(!m) return null;
+  return {fam:m[1],n:parseInt(m[2],10)*10+(m[3]?parseInt(m[3],10):0)};
+}
+function claudeLabel(id){ var v=claudeVer(id); if(!v) return id; return 'Claude '+(v.fam==='opus'?'Opus':'Sonnet')+' '+Math.floor(v.n/10)+(v.n%10?'.'+(v.n%10):''); }
+function claudeList(){
+  var ids=cfg.cmodels.length?cfg.cmodels.map(function(m){return m.id;}):CLAUDE_STATIC;
+  return ids.filter(function(id){ var v=claudeVer(id); return v&&v.n>=46; });
+}
+function claudeHeaders(){ return {'x-api-key':cfg.ckey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}; }
+function listClaude(){
+  return fetch('https://api.anthropic.com/v1/models?limit=100',{headers:claudeHeaders(),referrerPolicy:'no-referrer'}).then(function(r){
+    return r.json().catch(function(){return {};}).then(function(d){
+      if(!r.ok){ var msg=(d.error&&d.error.message)||''; throw {code:(r.status===401||r.status===403)?'chave':'erro',msg:msg}; }
+      return (d.data||[]).map(function(m){ return {id:m.id,nome:m.display_name||claudeLabel(m.id),v:claudeVer(m.id)}; })
+        .filter(function(m){ return m.v&&m.v.n>=46; })
+        .sort(function(a,b){ return (a.v.fam===b.v.fam?0:(a.v.fam==='sonnet'?-1:1))||b.v.n-a.v.n; })
+        .map(function(m){ return {id:m.id,nome:m.nome}; });
+    });
+  },function(){throw {code:'rede'};});
+}
+function claudeOrder(){
+  var list=claudeList(), sonnets=list.filter(function(id){return /sonnet/.test(id);});
+  var order=[cfg.cmodel,CLAUDE_DEFAULT].concat(sonnets), seen={};
+  return order.filter(function(m){ if(!m||seen[m]||!claudeVer(m)||claudeVer(m).n<46) return false; seen[m]=1; return true; }).slice(0,3);
+}
+function callClaude(sys,user,signal,onModel){
+  var order=claudeOrder(), i=0, lastErr=null;
+  function next(){
+    if(i>=order.length) return Promise.reject(lastErr||{code:'erro'});
+    var model=order[i++]; if(onModel) onModel(model);
+    return fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:signal,referrerPolicy:'no-referrer',
+      headers:Object.assign({'content-type':'application/json'},claudeHeaders()),
+      body:JSON.stringify({model:model,max_tokens:16000,system:sys,messages:[{role:'user',content:user}]})})
+    .then(function(r){
+      return r.json().catch(function(){return {};}).then(function(d){
+        if(r.ok){
+          if(d.stop_reason==='refusal') throw {code:'bloqueado'};
+          var txt=(d.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+          if(!txt) throw {code:'vazio'};
+          return {text:txt,model:model,finish:d.stop_reason};
+        }
+        var msg=(d.error&&d.error.message)||'';
+        if(r.status===404||r.status===429||r.status===500||r.status===503||r.status===529){ lastErr={code:r.status===429?'limite':r.status===404?'modelo':'instavel',msg:msg,model:model}; return next(); }
+        if(r.status===401||r.status===403) throw {code:'chave',msg:msg};
+        if(r.status===400&&/credit|billing|balance/i.test(msg)) throw {code:'credito',msg:msg};
+        throw {code:'erro',msg:msg,status:r.status};
+      });
+    },function(e){ if(e&&e.name==='AbortError') throw {code:'cancelado'}; if(e&&e.code) throw e; throw {code:'rede'}; });
+  }
+  return next();
+}
+function callAI(prov,sys,user,signal,onModel){ return prov==='claude'?callClaude(sys,user,signal,onModel):callGemini(sys,user,signal,onModel); }
+function firstModel(prov){ return prov==='claude'?claudeOrder()[0]:modelOrder()[0]; }
+function modelLabel(prov,id){ return prov==='claude'?claudeLabel(id):((cfg.models.filter(function(m){return m.id===id;})[0]||{}).nome||id); }
 function parseLoose(t){
   t=String(t||'').trim();
   try{return JSON.parse(t);}catch(e){}
@@ -490,8 +558,9 @@ function loadMesas(){
   idx.forEach(function(id){var m=J(LS.get('mesa:'+id),null); if(m&&m.id) S.mesas.push(fixMesa(m));});
   S.mesas.sort(function(a,b){return b.atualizado-a.atualizado;});
 }
-function saveNow(m){
+function saveNow(m,skipFs){
   if(!m||m.exemplo) return;
+  if(!skipFs) fsSchedule(m);
   clearTimeout(S.saveT);
   var body=clone(m); while(body.hist.length&&JSON.stringify(body).length>900000) body.hist.shift();
   var ok=LS.set('mesa:'+m.id,JSON.stringify(body));
@@ -632,23 +701,24 @@ function run(text,opt){
   if(!parts.length) return;
   var foco=opt.foco!==undefined?opt.foco:focoAtual();
   var sys=regras(), user=userPart(parts.join('\n\n---\n\n'),foco);
-  if(!cfg.key||cfg.manual){ renderChips(); openManual(sys+'\n\n'+user,pend); return; }
+  var prov=opt.prov||cfg.provider;
+  if(!aiReady(prov)||cfg.manual){ renderChips(); openManual(sys+'\n\n'+user,pend); return; }
   if(navigator.onLine===false){ renderChips(); toast('Sem internet. Seu texto ficou guardado; toque em “Processar guardados” quando voltar.',5200); return; }
-  S.busy=true; S.ctl=new AbortController(); S.t0=Date.now(); S.model='';
+  S.busy=true; S.ctl=new AbortController(); S.t0=Date.now(); S.model=''; S.prov=prov; S.alt=false;
   paintBusy(); clearInterval(S.timer); S.timer=setInterval(paintBusy,500); renderChips(); render();
   var signal=S.ctl.signal;
-  callGemini(sys,user,signal,function(mod){S.model=mod;paintBusy();})
+  callAI(prov,sys,user,signal,function(mod){S.model=mod;paintBusy();})
   .then(function(r){
     try{ return {out:parseLoose(r.text),r:r}; }
     catch(e){ // uma segunda tentativa pedindo só JSON válido
-      return callGemini(sys,user+'\n\nIMPORTANTE: responda somente com o objeto JSON válido, sem texto fora dele.',signal).then(function(r2){ return {out:parseLoose(r2.text),r:r2}; });
+      return callAI(prov,sys,user+'\n\nIMPORTANTE: responda somente com o objeto JSON válido, sem texto fora dele.',signal).then(function(r2){ return {out:parseLoose(r2.text),r:r2}; });
     }
   })
   .then(function(x){
     var msg=applyOut(m,x.out,pend);
-    if(x.r.model!==modelOrder()[0]) toast(msg+' · via '+x.r.model,5200);
+    if(prov!==cfg.provider||x.r.model!==firstModel(prov)) toast(msg+' · via '+modelLabel(prov,x.r.model),5200);
   })
-  .catch(function(e){ onError(e); })
+  .catch(function(e){ onError(e,prov); })
   .then(function(){ S.busy=false; S.ctl=null; clearInterval(S.timer); paintBusy(); render(); if(S.sel&&findItem(S.sel)) openItem(S.sel); });
 }
 function applyOut(m,out,pend){
@@ -668,24 +738,27 @@ function applyOut(m,out,pend){
 }
 var ERR={
   cancelado:'Parado. Seu texto ficou guardado.',
-  rede:'Sem conexão com o Gemini. Seu texto ficou guardado.',
-  chave:'O Google recusou a chave. Confira em Configurar IA.',
-  limite:'Limite do Gemini atingido agora. Espere 1 minuto ou use copiar e colar.',
-  instavel:'O Gemini está instável agora. Tente de novo em instantes.',
+  rede:'Sem conexão com o %. Seu texto ficou guardado.',
+  chave:'A chave do % foi recusada. Confira em Configurar IA.',
+  limite:'Limite do % atingido agora. Espere 1 minuto ou use copiar e colar.',
+  instavel:'O % está instável agora. Tente de novo em instantes.',
   modelo:'O modelo escolhido não existe mais. Abra Configurar IA e toque em Salvar e testar.',
-  bloqueado:'O Gemini recusou esse texto. Tente reformular.',
-  vazio:'O Gemini respondeu vazio. Tente de novo.',
-  formato:'A resposta veio fora do formato duas vezes. Tente de novo ou mande em partes menores.'
+  bloqueado:'O % recusou esse texto. Tente reformular.',
+  vazio:'O % respondeu vazio. Tente de novo.',
+  formato:'A resposta veio fora do formato duas vezes. Tente de novo ou mande em partes menores.',
+  credito:'Acabaram os créditos da API do Claude. Adicione em console.anthropic.com ou volte pro Gemini.'
 };
-function onError(e){
-  var c=(e&&e.code)||'erro';
-  toast(ERR[c]||('Deu erro'+(e&&e.status?' ('+e.status+')':'')+'. Seu texto ficou guardado.'),5600);
+function onError(e,prov){
+  var c=(e&&e.code)||'erro', name=PROV[prov||cfg.provider];
+  var t=ERR[c]?ERR[c].replace('%',name):('Deu erro'+(e&&e.status?' ('+e.status+')':'')+'. Seu texto ficou guardado.');
+  S.alt=(c==='limite'||c==='instavel'||c==='credito'||c==='rede')&&aiReady(prov==='claude'?'gemini':'claude')&&!cfg.manual?(prov==='claude'?'gemini':'claude'):false;
+  toast(t,5600); renderChips();
   if(c==='chave'||c==='modelo') openConfig();
 }
 function paintBusy(){
   var b=$('#busy'); b.hidden=!S.busy; if(!S.busy) return;
   var s=Math.round((Date.now()-S.t0)/1000);
-  $('#busyT').textContent='Pensando… '+s+'s';
+  $('#busyT').textContent='Pensando… '+s+'s · '+PROV[S.prov||cfg.provider];
 }
 
 /* ================= layout do mapa ================= */
@@ -761,7 +834,7 @@ function render(refit){
   $('#bUndo').disabled=m.exemplo||!m.hist.length||S.busy;
   var bn=$('#banner'); bn.textContent='';
   if(m.exemplo){ bn.hidden=false; bn.append(h('span',{},I('info'),'Exemplo. Escreva embaixo pra criar a sua.')); }
-  else if(!cfg.key&&!cfg.manual){ bn.hidden=false; bn.append(h('span',{},I('key-round'),'Falta ligar a IA (1 minuto).'),h('button',{class:'btn pri',type:'button',onclick:openConfig},'Configurar')); }
+  else if(!aiReady()&&!cfg.manual){ bn.hidden=false; bn.append(h('span',{},I('key-round'),'Falta ligar a IA (1 minuto).'),h('button',{class:'btn pri',type:'button',onclick:openConfig},'Configurar')); }
   else if(!m.fios.length&&!m.cenarios.length&&!S.busy){ bn.hidden=false; bn.append(h('span',{},I('pen-line'),'Escreva embaixo tudo o que está na cabeça.')); }
   else bn.hidden=true;
   $('#vMapa').setAttribute('aria-pressed',S.view==='mapa'); $('#vCmp').setAttribute('aria-pressed',S.view==='cmp');
@@ -1067,8 +1140,9 @@ function openMenu(){
       !list.length?menuItem('wallet','Exemplo',function(){closeSheet();},{tile:true,cls:'cur'}):null),
     h('div',{class:'lbl'},'Esta mesa'),
     h('div',{class:'menu'},
-      menuItem('copy','Copiar para o Obsidian',exportMd,{dis:m.exemplo}),
-      canShare?menuItem('share-2','Compartilhar',shareMd,{dis:m.exemplo}):null,
+      menuItem('share-2','Enviar pro Obsidian',sendObsidian,{dis:m.exemplo,small:cfg.obs.vault?cfg.obs.vault:''}),
+      menuItem('copy','Copiar como Markdown',exportMd,{dis:m.exemplo}),
+      canShare?menuItem('arrow-up','Compartilhar',shareMd,{dis:m.exemplo}):null,
       menuItem('download','Baixar como .md',downloadMd,{dis:m.exemplo}),
       menuItem('file-text','Texto bruto',openRaw,{small:m.dumps.length?String(m.dumps.length):''}),
       menuItem('trash-2',confirmDel?'Cancelar':'Apagar esta mesa',function(){ S.menuConfirm=confirmDel?null:m.id; openMenu(); },{dis:m.exemplo,cls:confirmDel?'':'dng'}),
@@ -1078,7 +1152,8 @@ function openMenu(){
       menuItem('clipboard-paste','Abrir de uma nota',openImport),
       menuItem('database','Backup de tudo (.json)',downloadBackup,{dis:!S.mesas.length}),
       menuItem('upload','Restaurar backup ou nota',function(){ $('#fileIn').click(); }),
-      menuItem('key-round','Configurar IA',openConfig,{small:cfg.manual?'copiar e colar':(cfg.key?(cfg.model||'Gemini'):'desligada')})),
+      menuItem('key-round','Configurar IA',openConfig,{small:cfg.manual?'copiar e colar':(aiReady()?PROV[cfg.provider]+' · '+modelLabel(cfg.provider,cfg.provider==='claude'?cfg.cmodel:(cfg.model||firstModel('gemini'))):'desligada')}),
+      menuItem('file-text','Obsidian',function(){openObsidian();},{small:FS.dir?(FS.perm==='granted'?'pasta ligada':'religar'):(cfg.obs.vault||'')})),
     h('p',{class:'tiny'},'Salvo só neste aparelho · funciona sem internet · versão '+VERSION)
   ]);
 }
@@ -1089,44 +1164,62 @@ function deleteMesa(m){
 }
 function openConfig(){
   S.sel=null; S.editing=false; render();
-  var key=h('input',{id:'cfgKey',type:'password',value:cfg.key,autocomplete:'off',spellcheck:'false',placeholder:'Cole a chave aqui (começa com AIza…)'});
+  var prov=cfg.provider, isC=prov==='claude';
+  var key=h('input',{id:'cfgKey',type:'password',value:keyOf(prov),autocomplete:'off',spellcheck:'false',placeholder:isC?'Cole a chave aqui (começa com sk-ant-…)':'Cole a chave aqui (começa com AIza…)'});
   var sel=h('select',{id:'cfgModel'});
-  function fill(){ sel.textContent=''; var ms=cfg.models.length?cfg.models:DEFAULT_MODELS.map(function(id){return {id:id,nome:id};});
-    ms.forEach(function(x){ sel.append(h('option',{value:x.id,selected:x.id===cfg.model},x.nome+(x.fam==='pro'?' (pode exigir faturamento)':''))); }); }
+  function fill(){
+    sel.textContent='';
+    if(isC){ claudeList().forEach(function(id){ var nm=(cfg.cmodels.filter(function(m){return m.id===id;})[0]||{}).nome||claudeLabel(id); sel.append(h('option',{value:id,selected:id===cfg.cmodel},nm+(id===CLAUDE_DEFAULT?' (padrão)':''))); }); }
+    else { var ms=cfg.models.length?cfg.models:DEFAULT_MODELS.map(function(id){return {id:id,nome:id};});
+      ms.forEach(function(x){ sel.append(h('option',{value:x.id,selected:x.id===cfg.model},x.nome+(x.fam==='pro'?' (pode exigir faturamento)':''))); }); }
+  }
   fill();
   var status=h('p',{class:'note',id:'cfgSt','aria-live':'polite'});
   var man=h('input',{id:'cfgMan',type:'checkbox',checked:cfg.manual});
-  sheet('Configurar IA','key-round',[
-    h('ol',{class:'steps'},
+  function provBtn(p){ return h('button',{type:'button','aria-pressed':String(p===prov),onclick:function(){ cfg.provider=p; saveCfg(); render(); openConfig(); }},I(p==='claude'?'sparkles':'zap'),h('span',{},PROV[p]),aiReady(p)?I('check'):null); }
+  function test(){
+    var v=key.value.trim(); if(isC) cfg.ckey=v; else cfg.key=v; saveCfg();
+    if(!v){ status.textContent='Chave apagada.'; render(); return; }
+    status.textContent='Testando…';
+    (isC?listClaude():listModels()).then(function(ms){
+      if(isC){ cfg.cmodels=ms; var ids=ms.map(function(m){return m.id;});
+        if(ids.indexOf(cfg.cmodel)<0) cfg.cmodel=ids.indexOf(CLAUDE_DEFAULT)>=0?CLAUDE_DEFAULT:(ids.filter(function(id){return /sonnet/.test(id);})[0]||ids[0]||CLAUDE_DEFAULT); }
+      else { cfg.models=ms; if(!cfg.model||!ms.some(function(x){return x.id===cfg.model;})) cfg.model=(ms.filter(function(x){return x.fam==='flash';})[0]||ms[0]||{id:DEFAULT_MODELS[0]}).id; }
+      saveCfg(); fill();
+      status.textContent='Funcionou. Usando '+modelLabel(prov,isC?cfg.cmodel:cfg.model)+'.'; render(); if(pending().length) toast('Tem texto guardado. Toque em “Processar guardados”.');
+    }).catch(function(e){ status.textContent=e.code==='chave'?'A chave foi recusada. Confira se copiou inteira.':e.code==='rede'?'Sem conexão agora.':'Erro ao testar: '+(e.msg||e.code); });
+  }
+  var steps=isC?h('ol',{class:'steps'},
+      h('li',{},'Abra ',h('a',{href:'https://console.anthropic.com/settings/keys',target:'_blank',rel:'noopener noreferrer'},'console.anthropic.com'),' e crie uma chave em API keys.'),
+      h('li',{},'Coloque créditos em Billing (a API é paga por uso).'),
+      h('li',{},'Cole aqui e toque em Salvar e testar.'))
+    :h('ol',{class:'steps'},
       h('li',{},'Abra ',h('a',{href:'https://aistudio.google.com/apikey',target:'_blank',rel:'noopener noreferrer'},'aistudio.google.com/apikey'),' com sua conta Google.'),
       h('li',{},'Toque em “Create API key” (ou “Criar chave de API”) e copie.'),
-      h('li',{},'Cole aqui e toque em Salvar e testar.')),
-    h('div',{class:'fld'},h('label',{for:'cfgKey',class:'lbl'},'Chave do Gemini'),key),
-    h('div',{class:'row'},
-      h('button',{class:'btn pri',type:'button',onclick:function(){
-        cfg.key=key.value.trim(); saveCfg(); if(!cfg.key){ status.textContent='Chave apagada.'; render(); return; }
-        status.textContent='Testando…';
-        listModels().then(function(ms){ cfg.models=ms; if(!cfg.model||!ms.some(function(x){return x.id===cfg.model;})) cfg.model=(ms.filter(function(x){return x.fam==='flash';})[0]||ms[0]||{id:DEFAULT_MODELS[0]}).id; saveCfg(); fill();
-          status.textContent='Funcionou. Usando '+cfg.model+'.'; render(); if(pending().length) toast('Tem texto guardado. Toque em “Processar guardados”.'); })
-        .catch(function(e){ status.textContent=e.code==='chave'?'O Google recusou a chave. Confira se copiou inteira.':e.code==='rede'?'Sem conexão agora.':'Erro ao testar: '+(e.msg||e.code); });
-      }},I('check'),'Salvar e testar'),
+      h('li',{},'Cole aqui e toque em Salvar e testar.'));
+  sheet('Configurar IA','key-round',[
+    h('div',{class:'fld'},h('div',{class:'lbl'},'IA usada'),h('div',{class:'seg pick',role:'group','aria-label':'IA usada'},provBtn('gemini'),provBtn('claude'))),
+    isC?h('p',{class:'note'},'A assinatura do Claude (Pro) não inclui a API: ela é cobrada à parte, por uso. Com a assinatura, use o modo copiar e colar no claude.ai.'):null,
+    steps,
+    h('div',{class:'fld'},h('label',{for:'cfgKey',class:'lbl'},'Chave do '+PROV[prov]),key),
+    h('div',{class:'row'},h('button',{class:'btn pri',type:'button',onclick:test},I('check'),'Salvar e testar'),
       h('button',{class:'btn',type:'button',onclick:function(){key.type=key.type==='password'?'text':'password';}},'Mostrar')),
     status,
     h('div',{class:'fld'},h('label',{for:'cfgModel',class:'lbl'},'Modelo'),sel),
     h('label',{class:'check',for:'cfgMan'},man,h('span',{},'Usar sempre copiar e colar (qualquer IA, sem chave)')),
-    h('p',{class:'note'},'A chave fica só neste aparelho e só é enviada ao Google. No plano grátis da API, o Google pode usar o que você manda pra melhorar os produtos dele: evite dados sensíveis de trabalho.')
+    h('p',{class:'note'},isC?'A chave fica só neste aparelho e só é enviada à Anthropic.':'A chave fica só neste aparelho e só é enviada ao Google. No plano grátis da API, o Google pode usar o que você manda pra melhorar os produtos dele: evite dados sensíveis de trabalho.')
   ]);
-  sel.addEventListener('change',function(){cfg.model=sel.value;saveCfg();});
+  sel.addEventListener('change',function(){ if(isC) cfg.cmodel=sel.value; else cfg.model=sel.value; saveCfg(); });
   man.addEventListener('change',function(){cfg.manual=man.checked;saveCfg();render();});
 }
 function openManual(prompt,pend){
   var out=h('textarea',{id:'manOut',class:'ta',placeholder:'Cole aqui a resposta inteira da IA'});
   var st=h('p',{class:'note','aria-live':'polite'});
   sheet('Copiar e colar','copy',[
-    (!cfg.key&&!cfg.manual)?h('div',{class:'card'},h('span',{class:'note'},'Sem chave do Gemini, a mesa funciona copiando e colando.'),h('div',{},h('button',{class:'btn',type:'button',onclick:openConfig},I('key-round'),'Ligar o Gemini direto'))):null,
+    (!aiReady()&&!cfg.manual)?h('div',{class:'card'},h('span',{class:'note'},'Sem chave de API, a mesa funciona copiando e colando.'),h('div',{},h('button',{class:'btn',type:'button',onclick:openConfig},I('key-round'),'Ligar a IA direto'))):null,
     h('ol',{class:'steps'},
       h('li',{},h('button',{class:'btn pri',type:'button',onclick:function(){copyText(prompt,function(ok){st.textContent=ok?'Pedido copiado.':'Não deu pra copiar. Selecione o texto abaixo.'; if(!ok) showCopyBox(prompt);});}},I('copy'),'Copiar pedido')),
-      h('li',{},'Cole no ',h('a',{href:'https://gemini.google.com/app',target:'_blank',rel:'noopener noreferrer'},'Gemini'),' (ou em qualquer IA) e mande.'),
+      h('li',{},'Cole no ',h('a',{href:'https://gemini.google.com/app',target:'_blank',rel:'noopener noreferrer'},'Gemini'),', no ',h('a',{href:'https://claude.ai/new',target:'_blank',rel:'noopener noreferrer'},'Claude'),' ou em qualquer IA e mande.'),
       h('li',{},'Copie a resposta e cole aqui:')),
     h('div',{class:'fld'},out),
     h('div',{class:'row'},h('button',{class:'btn pri',type:'button',onclick:function(){
@@ -1148,7 +1241,7 @@ function openRaw(){
 }
 function toMd(mesa){
   var m=mesa||S.cur, by={}; m.fios.concat(m.cenarios).forEach(function(x){by[x.id]=x;});
-  var L=['# '+m.tema.titulo,''];
+  var L=['# '+m.tema.titulo,'','%% Nota gerada pela Mesa de Pensamento. Edite pela Mesa: mudanças feitas aqui são sobrescritas no próximo envio. %%',''];
   if(m.tema.veredito) L.push('> [!tip] Recomendação','> '+m.tema.veredito,'');
   L.push('## Fios','');
   m.fios.forEach(function(f){L.push('### '+f.nome); f.pontos.forEach(function(p){L.push('- '+p);}); L.push('');});
@@ -1167,7 +1260,7 @@ function toMd(mesa){
   });
   if(m.abertos.length){ L.push('## Em aberto',''); m.abertos.forEach(function(a){L.push('- [ ] '+a.texto);}); L.push(''); }
   if(m.dumps.length){ L.push('## Texto bruto',''); m.dumps.forEach(function(d){L.push('**'+fmt(d.t)+'**','',d.texto,'');}); }
-  var data=clone({id:m.id,criado:m.criado,atualizado:m.atualizado,tema:m.tema,fios:m.fios,cenarios:m.cenarios,abertos:m.abertos,dumps:m.dumps,resumo:m.resumo});
+  var data=clone({id:m.id,criado:m.criado,atualizado:m.atualizado,obs:m.obs||'',tema:m.tema,fios:m.fios,cenarios:m.cenarios,abertos:m.abertos,dumps:m.dumps,resumo:m.resumo});
   L.push('%% dados da Mesa de Pensamento (não apague se quiser reabrir) %%','```mesa-data',JSON.stringify(data),'```');
   return L.join('\n');
 }
@@ -1185,6 +1278,15 @@ function downloadBackup(){
   var data={app:'mesa-de-pensamento',versao:1,exportado:Date.now(),mesas:S.mesas.map(function(m){ var x=clone(m); x.hist=[]; return x; })};
   if(download('mesa-backup-'+stamp+'.json',JSON.stringify(data),'application/json')) toast('Backup baixado ('+S.mesas.length+' mesas).');
 }
+function importOne(text,onlyNewer){
+  var mm=String(text).match(/```mesa-data\s*([\s\S]*?)```/); var one=mm?J(mm[1],null):null;
+  if(!one||!Array.isArray(one.fios)) return null;
+  var mesa=fixMesa(one); mesa.hist=[]; if(!mesa.id) mesa.id=newMesa().id;
+  var ex=S.mesas.filter(function(x){return x.id===mesa.id;})[0];
+  if(onlyNewer&&ex&&(ex.atualizado||0)>=(mesa.atualizado||0)) return false;
+  if(ex){ mesa.hist=ex.hist||[]; S.mesas=S.mesas.filter(function(x){return x!==ex;}); if(S.cur===ex) S.cur=mesa; }
+  S.mesas.unshift(mesa); saveNow(mesa,true); return {mesa:mesa,ex:!!ex};
+}
 function importText(text){
   var d=J(text,null);
   if(d&&d.app==='mesa-de-pensamento'&&Array.isArray(d.mesas)){
@@ -1197,13 +1299,8 @@ function importText(text){
     if(S.mesas.length){ S.cur=S.mesas[0]; } S.sel=null; S.fitted=false; closeSheet(); render(true); persistStorage();
     toast(n?('Restaurei '+n+' mesa'+(n>1?'s':'')+'. As mais novas deste aparelho foram mantidas.'):'Nada novo nesse backup.',5000); return true;
   }
-  var mm=String(text).match(/```mesa-data\s*([\s\S]*?)```/); var one=mm?J(mm[1],null):null;
-  if(one&&Array.isArray(one.fios)){
-    var mesa=fixMesa(one); mesa.hist=[]; if(!mesa.id) mesa.id=newMesa().id;
-    var ex=S.mesas.filter(function(x){return x.id===mesa.id;})[0];
-    if(ex){ S.mesas=S.mesas.filter(function(x){return x!==ex;}); }
-    S.mesas.unshift(mesa); S.cur=mesa; S.sel=null; S.fitted=false; saveNow(mesa); persistStorage(); closeSheet(); render(true); toast(ex?'Mesa atualizada pela nota':'Mesa aberta'); return true;
-  }
+  var r=importOne(text,false);
+  if(r){ S.cur=r.mesa; S.sel=null; S.fitted=false; persistStorage(); closeSheet(); render(true); toast(r.ex?'Mesa atualizada pela nota':'Mesa aberta'); return true; }
   return false;
 }
 function openImport(){
@@ -1211,6 +1308,103 @@ function openImport(){
   var st=h('p',{class:'note','aria-live':'polite'});
   sheet('Abrir de uma nota','clipboard-paste',[h('p',{class:'note'},'Leva uma mesa do PC pro celular (e vice-versa) pela nota do Obsidian.'),h('div',{class:'fld'},ta),
     h('div',{class:'row'},h('button',{class:'btn pri',type:'button',onclick:function(){ if(!importText(ta.value)) st.textContent='Não achei os dados da mesa nesse texto.'; }},I('check'),'Abrir')),st]);
+}
+
+/* ================= Obsidian ================= */
+function safeName(t){ return String(t||'').replace(/[\\\/:*?"<>|#^\[\]]/g,' ').replace(/\s+/g,' ').trim().slice(0,80); }
+function obsName(m){ if(!m.obs) m.obs=safeName(m.tema.titulo)||('Mesa '+m.id.slice(-4)); return m.obs; }
+function obsPath(m){ var p=String(cfg.obs.pasta||'').replace(/^[\/\\]+|[\/\\]+$/g,'').trim(); return (p?p+'/':'')+obsName(m); }
+function sendObsidian(){
+  var m=S.cur; if(!m||m.exemplo) return;
+  if(!cfg.obs.vault){ openObsidian('Escreva o nome do seu cofre (vault) pra eu saber onde criar a nota.'); return; }
+  var md=toMd(m); saveNow(m);
+  var base='obsidian://new?vault='+encodeURIComponent(cfg.obs.vault)+'&file='+encodeURIComponent(obsPath(m))+'&overwrite=true';
+  copyText(md,function(ok){
+    var uri=ok?base+'&clipboard=true':base+'&content='+encodeURIComponent(md);
+    if(!ok&&uri.length>60000){ toast('Nota grande demais pra mandar sem copiar. Use “Baixar como .md”.',5200); return; }
+    toast('Abrindo o Obsidian…'); setTimeout(function(){ location.href=uri; },60);
+  });
+}
+/* no PC (Chrome/Edge/Opera): grava direto na pasta do cofre */
+var FS={ok:typeof window.showDirectoryPicker==='function',dir:null,perm:'none',t:{}};
+var IDB={
+  open:function(){ return new Promise(function(res,rej){ var r=indexedDB.open('mesa',1); r.onupgradeneeded=function(){ r.result.createObjectStore('kv'); }; r.onsuccess=function(){res(r.result);}; r.onerror=function(){rej(r.error);}; }); },
+  op:function(mode,fn){ return IDB.open().then(function(db){ return new Promise(function(res,rej){ var st=db.transaction('kv',mode).objectStore('kv'), q=fn(st); q.onsuccess=function(){res(q.result);}; q.onerror=function(){rej(q.error);}; }); }); },
+  get:function(k){ return IDB.op('readonly',function(st){return st.get(k);}); },
+  set:function(k,v){ return IDB.op('readwrite',function(st){return st.put(v,k);}); },
+  del:function(k){ return IDB.op('readwrite',function(st){return st.delete(k);}); }
+};
+function fsInit(){
+  if(!FS.ok||!window.indexedDB) return;
+  IDB.get('vaultDir').then(function(d){ if(!d) return; FS.dir=d;
+    return d.queryPermission({mode:'readwrite'}).then(function(p){ FS.perm=p; if(p==='granted') fsPull(true); renderChips(); });
+  }).catch(function(){});
+}
+function fsEnsure(ask){
+  if(!FS.dir) return Promise.resolve(false);
+  return FS.dir.queryPermission({mode:'readwrite'}).then(function(p){
+    if(p==='granted'){ FS.perm=p; return true; }
+    if(!ask){ FS.perm=p; renderChips(); return false; }
+    return FS.dir.requestPermission({mode:'readwrite'}).then(function(p2){ FS.perm=p2; renderChips(); return p2==='granted'; });
+  }).catch(function(){ return false; });
+}
+function fsConnect(){
+  return window.showDirectoryPicker({id:'mesa-obsidian',mode:'readwrite'}).then(function(d){
+    FS.dir=d; FS.perm='granted';
+    return IDB.set('vaultDir',d).catch(function(){}).then(function(){ toast('Pasta ligada: '+d.name); fsPushAll(); return fsPull(true); }).then(function(){ if(!$('#sheet').hidden&&$('#obsVault')) openObsidian(); renderChips(); });
+  }).catch(function(e){ if(e&&e.name!=='AbortError') toast('Não consegui ligar a pasta.'); });
+}
+function fsDisconnect(){ FS.dir=null; FS.perm='none'; IDB.del('vaultDir').catch(function(){}); renderChips(); openObsidian(); toast('Pasta desligada.'); }
+function fsWrite(m){
+  if(!FS.dir||m.exemplo) return Promise.resolve(false);
+  return fsEnsure(false).then(function(ok){ if(!ok) return false;
+    return FS.dir.getFileHandle(obsName(m)+'.md',{create:true}).then(function(fh){ return fh.createWritable(); })
+      .then(function(w){ return w.write(toMd(m)).then(function(){ return w.close(); }); }).then(function(){ return true; });
+  }).catch(function(){ return false; });
+}
+function fsSchedule(m){ if(!FS.dir||!cfg.obs.auto||FS.perm!=='granted'||m.exemplo) return; clearTimeout(FS.t[m.id]); FS.t[m.id]=setTimeout(function(){ fsWrite(m); },1500); }
+function fsPushAll(){ S.mesas.forEach(function(m){ fsWrite(m); }); }
+function fsPull(silent){
+  return fsEnsure(!silent).then(function(ok){
+    if(!ok) return 0;
+    var n=0, jobs=[], it=FS.dir.values();
+    function step(){ return it.next().then(function(r){ if(r.done) return;
+      var e=r.value; if(e.kind==='file'&&/\.md$/i.test(e.name)){ jobs.push(e.getFile().then(function(f){return f.text();}).then(function(t){ if(importOne(t,true)) n++; }).catch(function(){})); }
+      return step(); }); }
+    return step().then(function(){ return Promise.all(jobs); }).then(function(){
+      if(n){ S.mesas.sort(function(a,b){return b.atualizado-a.atualizado;}); if(S.cur.exemplo&&S.mesas.length) S.cur=S.mesas[0]; S.fitted=false; render(true); }
+      if(!silent||n) toast(n?('Atualizei '+n+' mesa'+(n>1?'s':'')+' com o que está na pasta do Obsidian.'):'A pasta não tem nada mais novo.');
+      return n;
+    });
+  }).catch(function(){ if(!silent) toast('Não consegui ler a pasta.'); return 0; });
+}
+function openObsidian(msg){
+  S.sel=null; S.editing=false; render();
+  var vault=h('input',{type:'text',id:'obsVault',value:cfg.obs.vault,placeholder:'Nome do cofre, exatamente como no Obsidian',autocomplete:'off'});
+  var pasta=h('input',{type:'text',id:'obsPasta',value:cfg.obs.pasta,placeholder:'Mesas'});
+  var auto=h('input',{type:'checkbox',id:'obsAuto',checked:cfg.obs.auto});
+  function store(){ cfg.obs.vault=vault.value.trim(); cfg.obs.pasta=pasta.value.trim(); saveCfg(); }
+  vault.addEventListener('change',store); pasta.addEventListener('change',store);
+  auto.addEventListener('change',function(){ cfg.obs.auto=auto.checked; saveCfg(); });
+  sheet('Obsidian','file-text',[
+    msg?h('p',{class:'note',style:'color:var(--bad)'},msg):null,
+    h('div',{class:'card'},
+      h('div',{class:'lbl'},'Enviar nota (celular e PC)'),
+      h('p',{class:'note'},'“Enviar pro Obsidian” cria ou atualiza a nota da mesa no cofre abaixo, dentro da pasta escolhida.'),
+      h('div',{class:'fld'},h('label',{for:'obsVault',class:'lbl'},'Cofre'),vault),
+      h('div',{class:'fld'},h('label',{for:'obsPasta',class:'lbl'},'Pasta dentro do cofre'),pasta),
+      h('div',{class:'row'},h('button',{class:'btn pri',type:'button',onclick:function(){ store(); if(S.cur.exemplo){ toast('Salvo. Crie uma mesa pra enviar.'); closeSheet(); return; } sendObsidian(); }},I('share-2'),'Salvar e enviar esta mesa'))),
+    FS.ok?h('div',{class:'card'},
+      h('div',{class:'lbl'},'Sincronizar pasta (só no PC)'),
+      h('p',{class:'note'},FS.dir?('Ligada à pasta “'+FS.dir.name+'”'+(FS.perm==='granted'?'. Cada mudança é gravada lá sozinha.':'. Precisa religar a permissão.')):'Escolha a pasta “Mesas” dentro do seu cofre. A Mesa grava cada mudança lá e lê as mesas que vierem do celular pelo cofre.'),
+      h('label',{class:'check',for:'obsAuto'},auto,h('span',{},'Gravar sozinho a cada mudança')),
+      h('div',{class:'row'},
+        FS.dir&&FS.perm!=='granted'?h('button',{class:'btn pri',type:'button',onclick:function(){ fsEnsure(true).then(function(ok){ if(ok){ fsPushAll(); fsPull(true); } openObsidian(); }); }},I('refresh-cw'),'Religar'):null,
+        h('button',{class:'btn'+(FS.dir?'':' pri'),type:'button',onclick:fsConnect},I('panel-left'),FS.dir?'Trocar pasta':'Escolher pasta'),
+        FS.dir?h('button',{class:'btn',type:'button',onclick:function(){ fsPull(false); }},I('download'),'Ler da pasta'):null,
+        FS.dir?h('button',{class:'btn',type:'button',onclick:fsDisconnect},I('x'),'Desligar'):null))
+    :h('p',{class:'note'},'Neste navegador não dá pra gravar direto numa pasta. Use “Enviar pro Obsidian”. No PC com Chrome, Edge ou Opera a gravação automática aparece aqui.')
+  ]);
 }
 
 /* ================= chips da caixa ================= */
@@ -1223,6 +1417,8 @@ function renderChips(){
   }
   var pc=pending().length;
   if(pc&&!S.busy) box.append(chip('history','Processar guardados ('+pc+')',function(){run('',{save:true});},false,'pend'));
+  if(pc&&!S.busy&&S.alt) box.append(chip('refresh-cw','Tentar com '+PROV[S.alt],function(){ var p=S.alt; S.alt=false; run('',{save:true,prov:p}); },false,'pend'));
+  if(FS.dir&&FS.perm!=='granted'&&!m.exemplo) box.append(chip('refresh-cw','Religar pasta do Obsidian',function(){ fsEnsure(true).then(function(ok){ if(ok){ fsPushAll(); fsPull(true); toast('Pasta do Obsidian ligada.'); } renderChips(); }); }));
   if(m.exemplo||!(m.fios.length||m.cenarios.length)) { box.hidden=!box.childNodes.length; syncCompH(); return; }
   var list=[];
   function go(t){ return function(){ var ta=$('#inp'); if(ta.value.trim()){ run(ta.value.trim()+'\n\n'+t,{save:true}); } else run(t,{}); }; }
@@ -1314,6 +1510,7 @@ function bind(){
   document.addEventListener('keydown',function(e){
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); undo(); }
     if(e.key==='Escape'&&!$('#sheet').hidden) selectItem(null);
+    if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); $('#inp').focus(); }
   });
   var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(function(){ syncCompH(); if(S.view==='cmp') renderCmp(); else render(); },150); });
   if(window.ResizeObserver) new ResizeObserver(syncCompH).observe($('#comp'));
@@ -1325,9 +1522,9 @@ function bind(){
 /* ================= início ================= */
 loadMesas();
 S.cur=S.mesas[0]||EXEMPLO;
-bind(); syncCompH(); render(true);
+bind(); syncCompH(); render(true); fsInit();
 if('serviceWorker' in navigator && location.protocol==='https:'){ window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
-window.__mesa={S:S,merge:merge,layout:layout,cfg:cfg,parseLoose:parseLoose,rankModels:rankModels,toMd:toMd,applyOut:applyOut,checkConta:checkConta,importText:importText,regras:regras};
+window.__mesa={fsPull:fsPull,FS:FS,claudeVer:claudeVer,claudeOrder:claudeOrder,obsPath:obsPath,sendObsidian:sendObsidian,S:S,merge:merge,layout:layout,cfg:cfg,parseLoose:parseLoose,rankModels:rankModels,toMd:toMd,applyOut:applyOut,checkConta:checkConta,importText:importText,regras:regras};
 })();
 </script>
 </body>

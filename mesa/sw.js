@@ -1,6 +1,6 @@
 // Mesa de Pensamento: abre na hora e funciona sem internet.
 // Estratégia: devolve do cache imediatamente e atualiza o cache em segundo plano.
-var CACHE = 'mesa-f6e5a75828';
+var CACHE = 'mesa-818c39fca5';
 var FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (e) {
