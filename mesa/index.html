@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src https://generativelanguage.googleapis.com https://127.0.0.1:27124 http://127.0.0.1:27123 https://localhost:27124 http://localhost:27123; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src https://generativelanguage.googleapis.com https://api.github.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Mesa de Pensamento</title>
 <meta name="description" content="Despeje o pensamento e veja virar mapa e cenários.">
@@ -266,6 +266,26 @@ textarea.ta{min-height:130px;font-family:var(--mono);font-size:.84rem;resize:ver
 .seg.pick button span{display:inline!important}
 .steps a{color:var(--accent);font-weight:650}
 .check input{width:20px;height:20px;accent-color:var(--accent)}
+#bMenu{position:relative}
+.sd{position:absolute;top:6px;right:6px;width:9px;height:9px;border-radius:50%;box-shadow:0 0 0 2px var(--surface);pointer-events:none}
+.sd.off{display:none} .sd.ok{background:var(--good)} .sd.offline{background:var(--ink2)} .sd.err{background:var(--bad)}
+.sd.run{background:var(--accent);animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.sd.run{animation:none}}
+.sh{display:flex;align-items:center;gap:10px}
+.sh b{font-weight:700}
+.sn{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:750;font-size:.85rem;flex:none}
+.si{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--surface);color:var(--ink2)}
+.si svg.i{width:18px;height:18px}
+.si.ok{color:var(--good)} .si.err{color:var(--bad)} .si.offline{color:var(--ink2)}
+details>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;min-height:28px}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"›";font-weight:700;transition:transform .15s}
+details[open]>summary::after{transform:rotate(90deg)}
+.bd2{display:flex;flex-direction:column;gap:12px;margin-top:10px}
+.btn.dng{color:var(--bad)}
+.card .btn:not(.pri){background:var(--surface);border:1px solid var(--line)}
+.anot{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.94rem;display:-webkit-box;-webkit-line-clamp:8;-webkit-box-orient:vertical;overflow:hidden}
 
 /* avisos */
 #toast{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--comp-h) + 12px);z-index:9;background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:12px;font-weight:600;font-size:.92rem;max-width:min(92vw,520px);box-shadow:var(--shadow2);text-align:center}
@@ -279,7 +299,7 @@ textarea.ta{min-height:130px;font-family:var(--mono);font-size:.84rem;resize:ver
 <body>
 <div class="app">
   <header class="top">
-    <button class="ib" id="bMenu" type="button" aria-label="Menu" data-i="menu"></button>
+    <button class="ib" id="bMenu" type="button" aria-label="Menu" data-i="menu"><span class="sd off" aria-hidden="true"></span></button>
     <div class="ttl" id="ttl" role="button" tabindex="0" aria-label="Abrir o tema"></div>
     <div class="seg" role="group" aria-label="Visão">
       <button type="button" id="vMapa" aria-pressed="true" aria-label="Mapa"><i data-i="network"></i><span>Mapa</span></button>
@@ -320,7 +340,7 @@ textarea.ta{min-height:130px;font-family:var(--mono);font-size:.84rem;resize:ver
 <script>
 (function(){
 'use strict';
-var VERSION='4b04636db8';
+var VERSION='bd9ccc4126';
 var ICONS={"wallet":"<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"/>","banknote":"<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M6 12h.01M18 12h.01\"/>","credit-card":"<rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\"/><line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\"/><path d=\"M6 14h2\"/>","piggy-bank":"<path d=\"M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z\"/><path d=\"M16 10h.01\"/><path d=\"M2 8v1a2 2 0 0 0 2 2h1\"/>","hand-coins":"<path d=\"M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17\"/><path d=\"m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9\"/><path d=\"m2 16 6 6\"/><circle cx=\"16\" cy=\"9\" r=\"2.9\"/><circle cx=\"6\" cy=\"5\" r=\"3\"/>","receipt":"<path d=\"M12 17V7\"/><path d=\"M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8\"/><path d=\"M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z\"/>","landmark":"<path d=\"M10 18v-7\"/><path d=\"M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z\"/><path d=\"M14 18v-7\"/><path d=\"M18 18v-7\"/><path d=\"M3 22h18\"/><path d=\"M6 18v-7\"/>","percent":"<line x1=\"19\" x2=\"5\" y1=\"5\" y2=\"19\"/><circle cx=\"6.5\" cy=\"6.5\" r=\"2.5\"/><circle cx=\"17.5\" cy=\"17.5\" r=\"2.5\"/>","calculator":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\"/><line x1=\"8\" x2=\"16\" y1=\"6\" y2=\"6\"/><line x1=\"16\" x2=\"16\" y1=\"14\" y2=\"18\"/><path d=\"M16 10h.01\"/><path d=\"M12 10h.01\"/><path d=\"M8 10h.01\"/><path d=\"M12 14h.01\"/><path d=\"M8 14h.01\"/><path d=\"M12 18h.01\"/><path d=\"M8 18h.01\"/>","coins":"<path d=\"M13.744 17.736a6 6 0 1 1-7.48-7.48\"/><path d=\"M15 6h1v4\"/><path d=\"m6.134 14.768.866-.5 2 3.464\"/><circle cx=\"16\" cy=\"8\" r=\"6\"/>","trending-up":"<path d=\"M16 7h6v6\"/><path d=\"m22 7-8.5 8.5-5-5L2 17\"/>","trending-down":"<path d=\"M16 17h6v-6\"/><path d=\"m22 17-8.5-8.5-5 5L2 7\"/>","chart-line":"<path d=\"M3 3v16a2 2 0 0 0 2 2h16\"/><path d=\"m19 9-5 5-4-4-3 3\"/>","calendar":"<path d=\"M8 2v3\"/><path d=\"M16 2v3\"/><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M3 9h18\"/>","calendar-clock":"<path d=\"M16 14v2.2l1.6 1\"/><path d=\"M16 2v3\"/><path d=\"M21 7.338V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h2.338\"/><path d=\"M3 9h5.859\"/><path d=\"M8 2v3\"/><circle cx=\"16\" cy=\"16\" r=\"6\"/>","calendar-check":"<path d=\"M8 2v3\"/><path d=\"M16 2v3\"/><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M3 9h18\"/><path d=\"m9 15 2 2 4-4\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>","alarm-clock":"<circle cx=\"12\" cy=\"13\" r=\"8\"/><path d=\"M12 9v4l2 2\"/><path d=\"M5 3 2 6\"/><path d=\"m22 6-3-3\"/><path d=\"M6.38 18.7 4 21\"/><path d=\"M17.64 18.67 20 21\"/>","timer":"<line x1=\"10\" x2=\"14\" y1=\"2\" y2=\"2\"/><line x1=\"12\" x2=\"15\" y1=\"14\" y2=\"11\"/><circle cx=\"12\" cy=\"14\" r=\"8\"/>","hourglass":"<path d=\"M5 22h14\"/><path d=\"M5 2h14\"/><path d=\"M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22\"/><path d=\"M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2\"/>","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>","building-2":"<path d=\"M10 12h4\"/><path d=\"M10 8h4\"/><path d=\"M14 21v-3a2 2 0 0 0-4 0v3\"/><path d=\"M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2\"/><path d=\"M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16\"/>","briefcase":"<path d=\"M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\"/><rect width=\"20\" height=\"14\" x=\"2\" y=\"6\" rx=\"2\"/>","graduation-cap":"<path d=\"M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z\"/><path d=\"M22 10v6\"/><path d=\"M6 12.5V16a6 3 0 0 0 12 0v-3.5\"/>","book-open":"<path d=\"M12 5v16\"/><path d=\"M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z\"/>","school":"<path d=\"M14 21v-3a2 2 0 0 0-4 0v3\"/><path d=\"M18 4.933V21\"/><path d=\"m4 6 7.106-3.79a2 2 0 0 1 1.788 0L20 6\"/><path d=\"m6 11-3.52 2.147a1 1 0 0 0-.48.854V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a1 1 0 0 0-.48-.853L18 11\"/><path d=\"M6 4.933V21\"/><circle cx=\"12\" cy=\"9\" r=\"2\"/>","plane":"<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\"/>","bus":"<path d=\"M8 6v6\"/><path d=\"M15 6v6\"/><path d=\"M2 12h19.6\"/><path d=\"M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3\"/><circle cx=\"7\" cy=\"18\" r=\"2\"/><path d=\"M9 18h5\"/><circle cx=\"16\" cy=\"18\" r=\"2\"/>","car":"<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\"/><circle cx=\"7\" cy=\"17\" r=\"2\"/><path d=\"M9 17h6\"/><circle cx=\"17\" cy=\"17\" r=\"2\"/>","bike":"<circle cx=\"18.5\" cy=\"17.5\" r=\"3.5\"/><circle cx=\"5.5\" cy=\"17.5\" r=\"3.5\"/><circle cx=\"15\" cy=\"5\" r=\"1\"/><path d=\"M12 17.5V14l-3-3 4-3 2 3h2\"/>","footprints":"<path d=\"M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z\"/><path d=\"M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z\"/><path d=\"M16 17h4\"/><path d=\"M4 13h4\"/>","map-pin":"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/>","map":"<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\"/><path d=\"M15 5.764v15\"/><path d=\"M9 3.236v15\"/>","globe":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20\"/><path d=\"M2 12h20\"/>","luggage":"<path d=\"M6 20a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2\"/><path d=\"M8 18V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v14\"/><path d=\"M10 20h4\"/><circle cx=\"16\" cy=\"20\" r=\"2\"/><circle cx=\"8\" cy=\"20\" r=\"2\"/>","phone":"<path d=\"M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384\"/>","message-circle":"<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\"/>","mail":"<path d=\"m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7\"/><rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\"/>","send":"<path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\"/><path d=\"m21.854 2.147-10.94 10.939\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><path d=\"M16 3.128a4 4 0 0 1 0 7.744\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/>","user":"<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>","baby":"<path d=\"M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5\"/><path d=\"M15 12h.01\"/><path d=\"M19.38 6.813A9 9 0 0 1 20.8 10.2a2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1\"/><path d=\"M9 12h.01\"/>","heart":"<path d=\"M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5\"/>","heart-pulse":"<path d=\"M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5\"/><path d=\"M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27\"/>","stethoscope":"<path d=\"M11 2v2\"/><path d=\"M5 2v2\"/><path d=\"M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1\"/><path d=\"M8 15a6 6 0 0 0 12 0v-3\"/><circle cx=\"20\" cy=\"10\" r=\"2\"/>","pill":"<path d=\"m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z\"/><path d=\"m8.5 8.5 7 7\"/>","dumbbell":"<path d=\"M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z\"/><path d=\"m2.5 21.5 1.4-1.4\"/><path d=\"m20.1 3.9 1.4-1.4\"/><path d=\"M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z\"/><path d=\"m9.6 14.4 4.8-4.8\"/>","utensils":"<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\"/><path d=\"M7 2v20\"/><path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\"/>","coffee":"<path d=\"M10 2v2\"/><path d=\"M14 2v2\"/><path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\"/><path d=\"M6 2v2\"/>","shopping-cart":"<path d=\"m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18\"/><path d=\"M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25\"/><circle cx=\"18\" cy=\"20\" r=\"2\"/><circle cx=\"8\" cy=\"20\" r=\"2\"/>","shopping-bag":"<path d=\"M16 10a4 4 0 0 1-8 0\"/><path d=\"M3.103 6.034h17.794\"/><path d=\"M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z\"/>","gift":"<path d=\"M12 7v14\"/><path d=\"M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8\"/><path d=\"M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5\"/><rect x=\"3\" y=\"7\" width=\"18\" height=\"4\" rx=\"1\"/>","gamepad-2":"<line x1=\"6\" x2=\"10\" y1=\"11\" y2=\"11\"/><line x1=\"8\" x2=\"8\" y1=\"9\" y2=\"13\"/><line x1=\"15\" x2=\"15.01\" y1=\"12\" y2=\"12\"/><line x1=\"18\" x2=\"18.01\" y1=\"10\" y2=\"10\"/><path d=\"M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z\"/>","music":"<path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/>","camera":"<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\"/><circle cx=\"12\" cy=\"13\" r=\"3\"/>","tv":"<path d=\"m17 2-5 5-5-5\"/><rect width=\"20\" height=\"15\" x=\"2\" y=\"7\" rx=\"2\"/>","laptop":"<path d=\"M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z\"/><path d=\"M20.054 15.987H3.946\"/>","smartphone":"<rect width=\"14\" height=\"20\" x=\"5\" y=\"2\" rx=\"2\" ry=\"2\"/><path d=\"M12 18h.01\"/>","monitor":"<rect width=\"20\" height=\"14\" x=\"2\" y=\"3\" rx=\"2\"/><line x1=\"8\" x2=\"16\" y1=\"21\" y2=\"21\"/><line x1=\"12\" x2=\"12\" y1=\"17\" y2=\"21\"/>","code":"<path d=\"m16 18 6-6-6-6\"/><path d=\"m8 6-6 6 6 6\"/>","bot":"<path d=\"M12 8V4H8\"/><rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\"/><path d=\"M2 14h2\"/><path d=\"M20 14h2\"/><path d=\"M15 13v2\"/><path d=\"M9 13v2\"/>","cpu":"<path d=\"M12 20v2\"/><path d=\"M12 2v2\"/><path d=\"M17 20v2\"/><path d=\"M17 2v2\"/><path d=\"M2 12h2\"/><path d=\"M2 17h2\"/><path d=\"M2 7h2\"/><path d=\"M20 12h2\"/><path d=\"M20 17h2\"/><path d=\"M20 7h2\"/><path d=\"M7 20v2\"/><path d=\"M7 2v2\"/><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\"/><rect x=\"8\" y=\"8\" width=\"8\" height=\"8\" rx=\"1\"/>","brain":"<path d=\"M12 18V5\"/><path d=\"M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4\"/><path d=\"M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5\"/><path d=\"M17.997 5.125a4 4 0 0 1 2.526 5.77\"/><path d=\"M18 18a4 4 0 0 0 2-7.464\"/><path d=\"M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517\"/><path d=\"M6 18a4 4 0 0 1-2-7.464\"/><path d=\"M6.003 5.125a4 4 0 0 0-2.526 5.77\"/>","lightbulb":"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\"/><path d=\"M9 18h6\"/><path d=\"M10 22h4\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"6\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/>","flag":"<path d=\"M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528\"/>","trophy":"<path d=\"M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2\"/><path d=\"M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2\"/><path d=\"M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3\"/><path d=\"M4 22h16\"/><path d=\"M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z\"/><path d=\"M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3\"/>","medal":"<path d=\"M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15\"/><path d=\"M11 12 5.12 2.2\"/><path d=\"m13 12 5.88-9.8\"/><path d=\"M8 7h8\"/><circle cx=\"12\" cy=\"17\" r=\"5\"/><path d=\"M12 18v-2h-.5\"/>","rocket":"<path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\"/><path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09\"/><path d=\"M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z\"/><path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05\"/>","zap":"<path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\"/>","battery-low":"<path d=\"M22 14v-4\"/><path d=\"M6 14v-4\"/><rect x=\"2\" y=\"6\" width=\"16\" height=\"12\" rx=\"2\"/>","shield":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/>","shield-alert":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/>","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>","key":"<path d=\"m2 21 9.6-9.6\"/><path d=\"m7.5 15.5 2.3 2.3a1 1 0 0 1 0 1.4l-2.1 2.1a1 1 0 0 1-1.4 0L4 19\"/><circle cx=\"15.5\" cy=\"7.5\" r=\"5.5\"/>","scale":"<path d=\"M12 3v18\"/><path d=\"m19 8 3 8a5 5 0 0 1-6 0zV7\"/><path d=\"M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1\"/><path d=\"m5 8 3 8a5 5 0 0 1-6 0zV7\"/><path d=\"M7 21h10\"/>","gavel":"<path d=\"m14 13-8.381 8.38a1 1 0 0 1-3.001-3l8.384-8.381\"/><path d=\"m16 16 6-6\"/><path d=\"m21.5 10.5-8-8\"/><path d=\"m8 8 6-6\"/><path d=\"m8.5 7.5 8 8\"/>","file-text":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\"/><path d=\"M14 2v5a1 1 0 0 0 1 1h5\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/>","file-signature":"<path d=\"M14.364 13.634a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506l4.013-4.009a1 1 0 0 0-3.004-3.004z\"/><path d=\"M14.487 7.858A1 1 0 0 1 14 7V2\"/><path d=\"M20 19.645V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l2.516 2.516\"/><path d=\"M8 18h1\"/>","clipboard-list":"<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/><path d=\"M12 11h4\"/><path d=\"M12 16h4\"/><path d=\"M8 11h.01\"/><path d=\"M8 16h.01\"/>","list-checks":"<path d=\"M13 5h8\"/><path d=\"M13 12h8\"/><path d=\"M13 19h8\"/><path d=\"m3 17 2 2 4-4\"/><path d=\"m3 7 2 2 4-4\"/>","circle-check":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m16 9-5.5 5.5L8 12\"/>","circle-x":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m15 9-6 6\"/><path d=\"m9 9 6 6\"/>","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/>","circle-help":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"/><path d=\"M12 17h.01\"/>","search":"<path d=\"m21 21-4.34-4.34\"/><circle cx=\"11\" cy=\"11\" r=\"8\"/>","repeat":"<path d=\"m17 2 4 4-4 4\"/><path d=\"M3 11v-1a4 4 0 0 1 4-4h14\"/><path d=\"m7 22-4-4 4-4\"/><path d=\"M21 13v1a4 4 0 0 1-4 4H3\"/>","refresh-cw":"<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/>","split":"<path d=\"M16 3h5v5\"/><path d=\"M8 3H3v5\"/><path d=\"M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3\"/><path d=\"m15 9 6-6\"/>","git-branch":"<path d=\"M15 6a9 9 0 0 0-9 9V3\"/><circle cx=\"18\" cy=\"6\" r=\"3\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/>","layers":"<path d=\"M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z\"/><path d=\"M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12\"/><path d=\"M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17\"/>","puzzle":"<path d=\"M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z\"/>","wrench":"<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z\"/>","hammer":"<path d=\"m15 12-9.373 9.373a1 1 0 0 1-3.001-3L12 9\"/><path d=\"m18 15 4-4\"/><path d=\"m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172v-.344a2 2 0 0 0-.586-1.414l-1.657-1.657A6 6 0 0 0 12.516 3H9l1.243 1.243A6 6 0 0 1 12 8.485V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5\"/>","settings":"<path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/>","moon":"<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\"/>","cloud-rain":"<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\"/><path d=\"M16 14v6\"/><path d=\"M8 14v6\"/><path d=\"M12 16v6\"/>","leaf":"<path d=\"M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20\"/><path d=\"M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13\"/>","sprout":"<path d=\"M14 9.536V7a4 4 0 0 1 4-4h1.5a.5.5 0 0 1 .5.5V5a4 4 0 0 1-4 4 4 4 0 0 0-4 4c0 2 1 3 1 5a5 5 0 0 1-1 3\"/><path d=\"M4 9a5 5 0 0 1 8 4 5 5 0 0 1-8-4\"/><path d=\"M5 21h14\"/>","flame":"<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\"/>","snowflake":"<path d=\"m10 20-1.25-2.5L6 18\"/><path d=\"M10 4 8.75 6.5 6 6\"/><path d=\"m14 20 1.25-2.5L18 18\"/><path d=\"m14 4 1.25 2.5L18 6\"/><path d=\"m17 21-3-6h-4\"/><path d=\"m17 3-3 6 1.5 3\"/><path d=\"M2 12h6.5L10 9\"/><path d=\"m20 10-1.5 2 1.5 2\"/><path d=\"M22 12h-6.5L14 15\"/><path d=\"m4 10 1.5 2L4 14\"/><path d=\"m7 21 3-6-1.5-3\"/><path d=\"m7 3 3 6h4\"/>","church":"<path d=\"M10 9h4\"/><path d=\"M12 7v5\"/><path d=\"M14 21v-3a2 2 0 0 0-4 0v3\"/><path d=\"m18 9 3.52 2.147a1 1 0 0 1 .48.854V19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6.999a1 1 0 0 1 .48-.854L6 9\"/><path d=\"M6 21V7a1 1 0 0 1 .376-.782l5-3.999a1 1 0 0 1 1.249.001l5 4A1 1 0 0 1 18 7v14\"/>","languages":"<path d=\"m5 8 6 6\"/><path d=\"m4 14 6-6 2-3\"/><path d=\"M2 5h12\"/><path d=\"M7 2h1\"/><path d=\"m22 22-5-10-5 10\"/><path d=\"M14 18h6\"/>","handshake":"<path d=\"m11 17 2 2a1 1 0 1 0 3-3\"/><path d=\"m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4\"/><path d=\"m21 3 1 11h-2\"/><path d=\"M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3\"/><path d=\"M3 4h8\"/>","package":"<path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\"/><path d=\"M12 22V12\"/><polyline points=\"3.29 7 12 12 20.71 7\"/><path d=\"m7.5 4.27 9 5.15\"/>","truck":"<path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\"/><path d=\"M15 18H9\"/><path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\"/><circle cx=\"17\" cy=\"18\" r=\"2\"/><circle cx=\"7\" cy=\"18\" r=\"2\"/>","bed":"<path d=\"M2 4v16\"/><path d=\"M2 8h18a2 2 0 0 1 2 2v10\"/><path d=\"M2 17h20\"/><path d=\"M6 8v9\"/>","bath":"<path d=\"M10 4 8 6\"/><path d=\"M17 19v2\"/><path d=\"M2 12h20\"/><path d=\"M7 19v2\"/><path d=\"M9 5 7.621 3.621A2.121 2.121 0 0 0 4 5v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5\"/>","shirt":"<path d=\"M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z\"/>","scissors":"<circle cx=\"6\" cy=\"6\" r=\"3\"/><path d=\"M8.12 8.12 12 12\"/><path d=\"M20 4 8.12 15.88\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><path d=\"M14.8 14.8 20 20\"/>","pen-line":"<path d=\"M13 21h8\"/><path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\"/>","mic":"<path d=\"M12 19v3\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"/><rect x=\"9\" y=\"2\" width=\"6\" height=\"13\" rx=\"3\"/>","headphones":"<path d=\"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3\"/>","film":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M7 3v18\"/><path d=\"M3 7.5h4\"/><path d=\"M3 12h18\"/><path d=\"M3 16.5h4\"/><path d=\"M17 3v18\"/><path d=\"M17 7.5h4\"/><path d=\"M17 16.5h4\"/>","palette":"<path d=\"M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z\"/><circle cx=\"13.5\" cy=\"6.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"17.5\" cy=\"10.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"6.5\" cy=\"12.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"8.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"/>","sparkles":"<path d=\"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z\"/><path d=\"M20 2v4\"/><path d=\"M22 4h-4\"/><circle cx=\"4\" cy=\"20\" r=\"2\"/>","crown":"<path d=\"M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z\"/><path d=\"M5 21h14\"/>","star":"<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\"/>","hand-heart":"<path d=\"M11 14h2a2 2 0 0 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16\"/><path d=\"m14.45 13.39 5.05-4.694C20.196 8 21 6.85 21 5.75a2.75 2.75 0 0 0-4.797-1.837.276.276 0 0 1-.406 0A2.75 2.75 0 0 0 11 5.75c0 1.2.802 2.248 1.5 2.946L16 11.95\"/><path d=\"m2 15 6 6\"/><path d=\"m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a1 1 0 0 0-2.75-2.91\"/>","hand-helping":"<path d=\"M11 12h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 14\"/><path d=\"m7 18 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9\"/><path d=\"m2 13 6 6\"/>","ban":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M4.929 4.929 19.07 19.071\"/>","pause":"<rect x=\"14\" y=\"3\" width=\"5\" height=\"18\" rx=\"1\"/><rect x=\"5\" y=\"3\" width=\"5\" height=\"18\" rx=\"1\"/>","play":"<path d=\"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z\"/>","dice-5":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\"/><path d=\"M16 8h.01\"/><path d=\"M8 8h.01\"/><path d=\"M8 16h.01\"/><path d=\"M16 16h.01\"/><path d=\"M12 12h.01\"/>","dog":"<path d=\"M11.25 16.25h1.5L12 17z\"/><path d=\"M16 14v.5\"/><path d=\"M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309\"/><path d=\"M8 14v.5\"/><path d=\"M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5\"/>","cat":"<path d=\"M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z\"/><path d=\"M8 14v.5\"/><path d=\"M16 14v.5\"/><path d=\"M11.25 16.25h1.5L12 17l-.75-.75Z\"/>","sofa":"<path d=\"M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3\"/><path d=\"M2 16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z\"/><path d=\"M4 18v2\"/><path d=\"M20 18v2\"/><path d=\"M12 4v9\"/>","menu":"<path d=\"M4 5h16\"/><path d=\"M4 12h16\"/><path d=\"M4 19h16\"/>","undo-2":"<path d=\"M9 14 4 9l5-5\"/><path d=\"M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11\"/>","plus":"<path d=\"M5 12h14\"/><path d=\"M12 5v14\"/>","minus":"<path d=\"M5 12h14\"/>","maximize":"<path d=\"M8 3H5a2 2 0 0 0-2 2v3\"/><path d=\"M21 8V5a2 2 0 0 0-2-2h-3\"/><path d=\"M3 16v3a2 2 0 0 0 2 2h3\"/><path d=\"M16 21h3a2 2 0 0 0 2-2v-3\"/>","x":"<path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/>","trash-2":"<path d=\"M10 11v6\"/><path d=\"M14 11v6\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\"/><path d=\"M3 6h18\"/><path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/>","rotate-ccw":"<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/>","arrow-left-right":"<path d=\"M8 3 4 7l4 4\"/><path d=\"M4 7h16\"/><path d=\"m16 21 4-4-4-4\"/><path d=\"M20 17H4\"/>","list-ordered":"<path d=\"M11 5h10\"/><path d=\"M11 12h10\"/><path d=\"M11 19h10\"/><path d=\"M4 4h1v5\"/><path d=\"M4 9h2\"/><path d=\"M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02\"/>","filter":"<path d=\"M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z\"/>","layout-grid":"<rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\"/>","arrow-up":"<path d=\"m5 12 7-7 7 7\"/><path d=\"M12 19V5\"/>","square":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/>","copy":"<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/>","share-2":"<circle cx=\"18\" cy=\"5\" r=\"3\"/><circle cx=\"6\" cy=\"12\" r=\"3\"/><circle cx=\"18\" cy=\"19\" r=\"3\"/><line x1=\"8.59\" x2=\"15.42\" y1=\"13.51\" y2=\"17.49\"/><line x1=\"15.41\" x2=\"8.59\" y1=\"6.51\" y2=\"10.49\"/>","download":"<path d=\"M12 15V3\"/><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><path d=\"m7 10 5 5 5-5\"/>","upload":"<path d=\"M12 3v12\"/><path d=\"m17 8-5-5-5 5\"/><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/>","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\"/><path d=\"m15 5 4 4\"/>","chart-scatter":"<circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"18.5\" cy=\"5.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"11.5\" cy=\"11.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"7.5\" cy=\"16.5\" r=\".5\" fill=\"currentColor\"/><circle cx=\"17.5\" cy=\"14.5\" r=\".5\" fill=\"currentColor\"/><path d=\"M3 3v16a2 2 0 0 0 2 2h16\"/>","panel-left":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M9 3v18\"/>","check":"<path d=\"M20 6 9 17l-5-5\"/>","clipboard-paste":"<path d=\"M11 14h10\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v1.344\"/><path d=\"m17 18 4-4-4-4\"/><path d=\"M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 1.793-1.113\"/><rect x=\"8\" y=\"2\" width=\"8\" height=\"4\" rx=\"1\"/>","database":"<ellipse cx=\"12\" cy=\"5\" rx=\"9\" ry=\"3\"/><path d=\"M3 5V19A9 3 0 0 0 21 19V5\"/><path d=\"M3 12A9 3 0 0 0 21 12\"/>","history":"<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/><path d=\"M12 7v5l4 2\"/>","wand-sparkles":"<path d=\"m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72\"/><path d=\"m14 7 3 3\"/><path d=\"M5 6v4\"/><path d=\"M19 14v4\"/><path d=\"M10 2v2\"/><path d=\"M7 8H3\"/><path d=\"M21 16h-4\"/><path d=\"M11 3H9\"/>","cloud-off":"<path d=\"M10.94 5.274A7 7 0 0 1 15.71 10h1.79a4.5 4.5 0 0 1 4.222 6.057\"/><path d=\"M18.796 18.81A4.5 4.5 0 0 1 17.5 19H9A7 7 0 0 1 5.79 5.78\"/><path d=\"m2 2 20 20\"/>","key-round":"<path d=\"M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z\"/><circle cx=\"16.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"/>","info":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4\"/><path d=\"M12 8h.01\"/>","chevron-right":"<path d=\"m9 18 6-6-6-6\"/>","network":"<rect x=\"16\" y=\"16\" width=\"6\" height=\"6\" rx=\"1\"/><rect x=\"2\" y=\"16\" width=\"6\" height=\"6\" rx=\"1\"/><rect x=\"9\" y=\"2\" width=\"6\" height=\"6\" rx=\"1\"/><path d=\"M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3\"/><path d=\"M12 12V8\"/>"};
 var CONTENT_ICONS=["wallet","banknote","credit-card","piggy-bank","hand-coins","receipt","landmark","percent","calculator","coins","trending-up","trending-down","chart-line","calendar","calendar-clock","calendar-check","clock","alarm-clock","timer","hourglass","house","building-2","briefcase","graduation-cap","book-open","school","plane","bus","car","bike","footprints","map-pin","map","globe","luggage","phone","message-circle","mail","send","users","user","baby","heart","heart-pulse","stethoscope","pill","dumbbell","utensils","coffee","shopping-cart","shopping-bag","gift","gamepad-2","music","camera","tv","laptop","smartphone","monitor","code","bot","cpu","brain","lightbulb","target","flag","trophy","medal","rocket","zap","battery-low","shield","shield-alert","lock","key","scale","gavel","file-text","file-signature","clipboard-list","list-checks","circle-check","circle-x","triangle-alert","circle-help","search","repeat","refresh-cw","split","git-branch","layers","puzzle","wrench","hammer","settings","sun","moon","cloud-rain","leaf","sprout","flame","snowflake","church","languages","handshake","package","truck","bed","bath","shirt","scissors","pen-line","mic","headphones","film","palette","sparkles","crown","star","hand-heart","hand-helping","ban","pause","play","dice-5","dog","cat","sofa"];
 
@@ -384,6 +404,7 @@ function checkConta(c){
   var ok=Math.abs(L.v-Rt.v)<=Math.max(0.011,Math.abs(L.v)*0.0005);
   return {ok:ok,calc:L.v};
 }
+function plural(n,um,varios){ return n+' '+(n===1?um:varios); }
 function fmtNum(n){ return (Math.round(n*100)/100).toLocaleString('pt-BR',{maximumFractionDigits:2}); }
 
 /* ================= configuração da IA ================= */
@@ -392,13 +413,14 @@ var CLAUDE_URL='https://claude.ai/artifact/2bZSYUAdyHbyQj62adTMh8';
 var cfg=Object.assign({provider:ED==='claude'?'claude':'gemini',key:'',model:'',models:[],tier:'default',manual:false},J(LS.get('mesa:cfg'),{}));
 if(ED==='claude') cfg.provider='claude';
 if(cfg.provider!=='claude'&&cfg.provider!=='gemini') cfg.provider='gemini';
-cfg.obs=Object.assign({vault:'',pasta:'Mesas',areas:'Pessoal, Irlanda, Trabalho, Projetos, Dev',rest:'',restUrl:'https://127.0.0.1:27124',auto:true},cfg.obs||{});
+cfg.obs=Object.assign({vault:'',pasta:'Mesas',areas:'Pessoal, Irlanda, Trabalho, Projetos, Dev'},cfg.obs||{}); delete cfg.obs.rest; delete cfg.obs.restUrl; delete cfg.obs.auto;
+cfg.sync=Object.assign({repo:'',token:'',on:false},cfg.sync||{});
 var PROV={gemini:'Gemini',claude:'Claude'};
 var TIERS={'default':'Sonnet',complex:'Opus',quick:'Haiku'};
 var SAMPLE=null, DLS=null, DB=null, UID=null;
 function aiReady(p){ p=p||cfg.provider; return p==='claude'?(ED==='claude'&&!!SAMPLE):(ED==='site'&&!!cfg.key); }
 function areasList(){ return String(cfg.obs.areas||'').split(',').map(function(x){return x.trim();}).filter(Boolean); }
-function saveCfg(){LS.set('mesa:cfg',JSON.stringify(cfg));}
+function saveCfg(){ LS.set('mesa:cfg',JSON.stringify(cfg)); if(ED==='claude') dbPut('cfg',{kind:'cfg',cfg:clone(cfg)}); }
 var DEFAULT_MODELS=['gemini-3.5-flash','gemini-3-flash-preview','gemini-2.5-flash','gemini-2.5-flash-lite'];
 function modelOrder(){
   var list=[cfg.model].concat(cfg.models.map(function(m){return m.id;}).filter(function(id){return /flash/.test(id);}),DEFAULT_MODELS);
@@ -521,9 +543,9 @@ function loadMesas(){
   idx.forEach(function(id){var m=J(LS.get('mesa:'+id),null); if(m&&m.id) S.mesas.push(fixMesa(m));});
   S.mesas.sort(function(a,b){return b.atualizado-a.atualizado;});
 }
-function saveNow(m,from){ /* from: true = veio do Obsidian, 'db' = veio da conta do Claude (não devolve pra origem) */
+function saveNow(m,from){ /* from: 'sync' = veio do GitHub, 'db' = veio da conta do Claude (não devolve pra origem) */
   if(!m||m.exemplo) return;
-  if(!from) restSchedule(m);
+  if(from!=='sync'&&from!=='db'&&pushable(m)&&isDirty(m)) syncSoon();
   if(ED==='claude'&&from!=='db') dbSave(m);
   clearTimeout(S.saveT);
   var body=clone(m); while(body.hist.length&&JSON.stringify(body).length>900000) body.hist.shift();
@@ -645,6 +667,8 @@ function estado(){
 }
 function userPart(msg,foco){
   var p='ESTADO ATUAL:\n'+JSON.stringify(estado());
+  var an=S.cur.anot&&String(S.cur.anot.texto||'').trim();
+  if(an) p+='\n\nANOTAÇÕES DA PESSOA NO OBSIDIAN (contexto; use se ajudar, não copie tudo pros fios):\n'+an.slice(0,4000);
   if(foco) p+='\n\nITEM EM FOCO:\n'+JSON.stringify(foco);
   return p+'\n\nMENSAGEM:\n'+msg;
 }
@@ -798,8 +822,10 @@ function render(refit){
   $('#askN').textContent=m.abertos.length;
   $('#bUndo').disabled=m.exemplo||!m.hist.length||S.busy;
   var bn=$('#banner'); bn.textContent='';
+  delete bn.dataset.sync;
   if(m.exemplo){ bn.hidden=false; bn.append(h('span',{},I('info'),'Exemplo. Escreva embaixo pra criar a sua.')); }
-  else if(!aiReady()&&!cfg.manual){ bn.hidden=false; bn.append(h('span',{},I('key-round'),'Falta ligar a IA (1 minuto).'),h('button',{class:'btn pri',type:'button',onclick:openConfig},'Configurar')); }
+  else if(SY.halt&&syncOn()){ bn.hidden=false; bn.dataset.sync='1'; bn.append(h('span',{},I('triangle-alert'),'Sincronização parada.'),h('button',{class:'btn pri',type:'button',onclick:function(){openSync();}},'Resolver')); }
+  else if(!aiReady()&&!cfg.manual&&(ED==='claude'||cfg.provider==='gemini')){ bn.hidden=false; bn.append(h('span',{},I('key-round'),ED==='claude'?'O Claude ainda não liberou a IA aqui.':'Falta ligar a IA (1 minuto).'),h('button',{class:'btn pri',type:'button',onclick:openConfig},ED==='claude'?'Ver':'Configurar')); }
   else if(!m.fios.length&&!m.cenarios.length&&!S.busy){ bn.hidden=false; bn.append(h('span',{},I('pen-line'),'Escreva embaixo tudo o que está na cabeça.')); }
   else bn.hidden=true;
   $('#vMapa').setAttribute('aria-pressed',S.view==='mapa'); $('#vCmp').setAttribute('aria-pressed',S.view==='cmp');
@@ -993,7 +1019,8 @@ function openItem(id){
       m.tema.area?h('div',{class:'cs'},h('span',{class:'c'},I('layers'),m.tema.area)):null,
       m.tema.veredito?h('div',{class:'card',style:'background:var(--fav-bg)'},h('div',{class:'lbl',style:'color:var(--fav)'},'Recomendação'),h('div',{},m.tema.veredito)):null,
       m.resumo?h('p',{class:'note'},'Última rodada: '+m.resumo):null,
-      h('div',{class:'lbl'},m.fios.length+' fios · '+m.cenarios.length+' cenários · '+m.abertos.length+' dúvidas'),
+      (m.anot&&String(m.anot.texto||'').trim())?h('div',{class:'card'},h('div',{class:'lbl'},'Suas anotações (Obsidian)'),h('div',{class:'anot'},m.anot.texto)):null,
+      h('div',{class:'lbl'},plural(m.fios.length,'fio','fios')+' · '+plural(m.cenarios.length,'cenário','cenários')+' · '+plural(m.abertos.length,'dúvida','dúvidas')),
       m.fios.length?h('div',{class:'lk'},m.fios.map(function(x){return linkBtn(x);})):null,
       loose.length?askList(loose):null,
       h('div',{class:'acts'},
@@ -1102,33 +1129,35 @@ function openMenu(){
   S.sel=null; S.editing=false; render();
   var m=S.cur, list=S.mesas.slice().sort(function(a,b){return b.atualizado-a.atualizado;});
   var confirmDel=S.menuConfirm===m.id;
-  var canShare=!!navigator.share;
+  var canShare=!!navigator.share, on=syncOn();
   sheet('Mesas',null,[
     h('div',{class:'menu'},
       menuItem('plus','Nova mesa',function(){ if(S.busy)return; var n=newMesa(); S.mesas.unshift(n); S.cur=n; S.sel=null; S.fitted=false; saveNow(n); persistStorage(); closeSheet(); render(true); $('#inp').focus(); }),
-      list.map(function(x){ return menuItem(x.tema.icone||'brain',x.tema.titulo,function(){ if(S.busy)return; saveNow(S.cur); S.cur=x; S.sel=null; S.fitted=false; closeSheet(); render(true); },{tile:true,cls:x===m?'cur':'',small:fmt(x.atualizado)}); }),
+      list.map(function(x){ return menuItem(x.tema.icone||'brain',x.tema.titulo,function(){ if(S.busy)return; saveNow(S.cur); S.cur=x; S.sel=null; S.fitted=false; closeSheet(); render(true); setTimeout(function(){autoRun('abrir');},400); },{tile:true,cls:x===m?'cur':'',small:(x.dumps.some(function(d){return !d.ok;})?'● ':'')+fmt(x.atualizado)}); }),
       !list.length?menuItem('wallet','Exemplo',function(){closeSheet();},{tile:true,cls:'cur'}):null),
     h('div',{class:'lbl'},'Esta mesa'),
     h('div',{class:'menu'},
-      menuItem('share-2','Enviar pro Obsidian',sendObsidian,{dis:m.exemplo,small:cfg.obs.vault?cfg.obs.vault:''}),
+      on?null:menuItem('share-2','Enviar pro Obsidian',sendObsidian,{dis:m.exemplo}),
       menuItem('copy','Copiar como Markdown',exportMd,{dis:m.exemplo}),
       canShare?menuItem('arrow-up','Compartilhar',shareMd,{dis:m.exemplo}):null,
       menuItem('download','Baixar como .md',downloadMd,{dis:m.exemplo}),
       menuItem('file-text','Texto bruto',openRaw,{small:m.dumps.length?String(m.dumps.length):''}),
       menuItem('trash-2',confirmDel?'Cancelar':'Apagar esta mesa',function(){ S.menuConfirm=confirmDel?null:m.id; openMenu(); },{dis:m.exemplo,cls:confirmDel?'':'dng'}),
-      confirmDel?menuItem('triangle-alert','Sim, apagar de vez deste aparelho',function(){ deleteMesa(m); },{cls:'dng'}):null),
+      confirmDel?menuItem('triangle-alert',on?'Sim, apagar (em todos os aparelhos)':'Sim, apagar de vez',function(){ deleteMesa(m); },{cls:'dng'}):null),
     h('div',{class:'lbl'},'Geral'),
     h('div',{class:'menu'},
-      menuItem('clipboard-paste','Abrir de uma nota',openImport),
+      menuItem('refresh-cw','Sincronizar e Obsidian',function(){openSync();},{small:syncText()}),
+      menuItem('key-round','Configurar IA',openConfig,{small:cfg.manual?'copiar e colar':(aiReady()?modelLabel(cfg.provider,firstModel(cfg.provider)):(cfg.provider==='claude'?'Claude · copiar e colar':'desligada'))}),
+      (ED==='site'&&!standalone())?menuItem('download','Instalar na tela inicial',installApp):null,
       menuItem('database','Backup de tudo (.json)',downloadBackup,{dis:!S.mesas.length}),
       menuItem('upload','Restaurar backup ou nota',function(){ $('#fileIn').click(); }),
-      menuItem('key-round','Configurar IA',openConfig,{small:cfg.manual?'copiar e colar':(aiReady()?modelLabel(cfg.provider,firstModel(cfg.provider)):(cfg.provider==='claude'?'Claude · copiar e colar':'desligada'))}),
-      menuItem('file-text','Obsidian',function(){openObsidian();},{small:restOn()?(REST.ok===false?'PC desconectado':'PC ligado'):(cfg.obs.vault||'')}),
-      ED==='site'?menuItem('sparkles','Mesa no Claude (seu plano)',function(){ window.open(CLAUDE_URL,'_blank','noopener'); }):menuItem('zap','Mesa com Gemini (site)',function(){ window.open('https://rei-artur.github.io/mesa/','_blank','noopener'); })),
-    h('p',{class:'tiny'},(ED==='claude'?'Mesa no Claude · salva na sua conta':'Salvo neste aparelho · funciona sem internet')+' · versão '+VERSION)
+      menuItem('clipboard-paste','Colar uma mesa (texto)',openImport),
+      ED==='site'?menuItem('sparkles','Mesa no Claude (seu plano)',function(){ window.open(CLAUDE_URL,'_blank','noopener'); }):menuItem('zap','Mesa com Gemini (site)',function(){ window.open(SITE_URL,'_blank','noopener'); })),
+    h('p',{class:'tiny'},(ED==='claude'?'Mesa no Claude':'Mesa de Pensamento')+(on?' · sincronizada':' · salva neste aparelho')+' · funciona sem internet · versão '+VERSION)
   ]);
 }
 function deleteMesa(m){
+  if(syncOn()&&SS.base[m.id]&&!SS.base[m.id].dead){ SS.dead[m.id]=Date.now(); SS.obs[m.id]=m.obs||''; saveSS(); syncSoon(600); }
   LS.del('mesa:'+m.id); dbDelete(m); var idx=J(LS.get('mesa:index'),[]).filter(function(x){return x!==m.id;}); LS.set('mesa:index',JSON.stringify(idx));
   S.mesas=S.mesas.filter(function(x){return x!==m;}); S.menuConfirm=null;
   S.cur=S.mesas[0]||EXEMPLO; S.sel=null; S.fitted=false; closeSheet(); render(true); toast('Mesa apagada');
@@ -1147,7 +1176,7 @@ function openConfig(){
       h('div',{class:'fld'},h('label',{for:'cfgTier',class:'lbl'},'Modelo'),tier),
       h('p',{class:'note'},'Daqui dá pra escolher Sonnet ou Opus; o Claude sempre usa a versão atual de cada um (não dá pra fixar uma versão antiga).'),
       manRow,
-      h('p',{class:'note'},'Esta é a Mesa dentro do Claude. A Mesa com Gemini fica em ',h('a',{href:'https://rei-artur.github.io/mesa/',target:'_blank',rel:'noopener noreferrer'},'rei-artur.github.io/mesa'),'. As duas trocam mesas pelo Obsidian.')
+      h('p',{class:'note'},'Esta é a Mesa dentro do Claude. A Mesa com Gemini fica em ',h('a',{href:SITE_URL,target:'_blank',rel:'noopener noreferrer'},'rei-artur.github.io/mesa'),'. Com a sincronização ligada (menu → Sincronizar), as duas veem as mesmas mesas.')
     ]);
     return;
   }
@@ -1159,7 +1188,7 @@ function openConfig(){
       h('div',{class:'card'},h('div',{class:'lbl'},'Claude pelo seu plano'),
         h('p',{class:'note'},'O plano Pro só pode ser usado de dentro do Claude. Por isso existe a Mesa no Claude: igual a esta, roda automático no seu plano e guarda as mesas na sua conta.'),
         h('div',{},h('a',{class:'btn pri',href:CLAUDE_URL,target:'_blank',rel:'noopener noreferrer'},I('sparkles'),'Abrir a Mesa no Claude'))),
-      h('p',{class:'note'},'Aqui no site, com Claude escolhido, cada rodada vira copiar e colar no claude.ai. As duas Mesas trocam mesas pelo Obsidian.'));
+      h('p',{class:'note'},'Aqui no site, com Claude escolhido, cada rodada vira copiar e colar no claude.ai. Com a sincronização ligada, as duas Mesas veem as mesmas mesas.'));
   } else {
     var key=h('input',{id:'cfgKey',type:'password',value:cfg.key,autocomplete:'off',spellcheck:'false',placeholder:'Cole a chave aqui (começa com AIza…)'});
     var sel=h('select',{id:'cfgModel'});
@@ -1204,7 +1233,8 @@ function openManual(prompt,pend){
     h('div',{class:'row'},h('button',{class:'btn pri',type:'button',onclick:function(){
       try{ var o=parseLoose(out.value); applyOut(S.cur,o,pend); closeSheet(); }
       catch(e){ st.textContent=e&&e.code==='formato'?'Não achei o JSON na resposta. Cole a resposta inteira.':'Não consegui aplicar.'; }
-    }},I('check'),'Aplicar na mesa')),
+    }},I('check'),'Aplicar na mesa'),
+      (navigator.clipboard&&navigator.clipboard.readText)?h('button',{class:'btn',type:'button',onclick:function(){ navigator.clipboard.readText().then(function(t){ out.value=t; st.textContent=t?'Resposta colada. Toque em Aplicar.':'A área de transferência está vazia.'; },function(){ st.textContent='O navegador não deixou ler. Cole com o dedo na caixa acima.'; }); }},I('clipboard-paste'),'Colar resposta'):null),
     st,
     h('p',{class:'note'},'Seu texto já está guardado. Se fechar, ele fica em “Processar guardados”.')
   ]);
@@ -1296,114 +1326,484 @@ function openImport(){
     h('div',{class:'row'},h('button',{class:'btn pri',type:'button',onclick:function(){ if(!importText(ta.value)) st.textContent='Não achei os dados da mesa nesse texto.'; }},I('check'),'Abrir')),st]);
 }
 
-/* ================= Obsidian ================= */
+/* ================= Obsidian (nomes das notas, envio manual) ================= */
 function safeName(t){ return String(t||'').replace(/[\\\/:*?"<>|#^\[\]]/g,' ').replace(/\s+/g,' ').trim().slice(0,80); }
 function hasContent(m){ return !!(m&&!m.exemplo&&(m.fios.length||m.cenarios.length)); }
 function obsName(m){ /* o nome da nota fica fixo depois da 1ª vez, pra não duplicar se o título mudar */
   if(m.obs) return m.obs;
   var n=(m.tema.titulo&&m.tema.titulo!=='Nova mesa'?safeName(m.tema.titulo):'')||('Mesa '+m.id.slice(-4));
   if(hasContent(m)) m.obs=n; return n; }
-function obsFolder(){ return String(cfg.obs.pasta||'').replace(/^[\/\\]+|[\/\\]+$/g,'').trim(); }
-function obsPath(m){ var p=obsFolder(); return (p?p+'/':'')+obsName(m); }
-function obsUri(m,withContent){
-  var base='obsidian://new?vault='+encodeURIComponent(cfg.obs.vault)+'&file='+encodeURIComponent(obsPath(m))+'&overwrite=true';
-  return withContent?base+'&content='+encodeURIComponent(toMd(m)):base+'&clipboard=true';
+function obsFolder(){ return String(cfg.obs.pasta||'').replace(/^[\/\\]+|[\/\\]+$/g,'').trim()||'Mesas'; }
+function obsPath(m){ return obsFolder()+'/'+obsName(m); }
+function obsUri(action,params){
+  var q=Object.keys(params).filter(function(k){return params[k]!=null&&params[k]!=='';}).map(function(k){return k+'='+encodeURIComponent(params[k]);});
+  if(cfg.obs.vault) q.unshift('vault='+encodeURIComponent(cfg.obs.vault));
+  return 'obsidian://'+action+(q.length?'?'+q.join('&'):'');
 }
-function sendObsidian(){
-  var m=S.cur; if(!m||m.exemplo) return;
-  if(!cfg.obs.vault){ openObsidian('Escreva o nome do seu cofre pra eu saber onde criar a nota.'); return; }
-  saveNow(m);
-  if(restOn()){ restWrite(m).then(function(ok){ if(ok){ toast('Nota atualizada no Obsidian: '+obsPath(m)); restOpen(m); } else uriSend(m); }); return; }
-  uriSend(m);
-}
-function uriSend(m){
+function sendObsidian(){ /* sem sincronização: manda esta mesa como nota, pelo link do Obsidian */
+  var m=S.cur; if(!m||m.exemplo) return; saveNow(m);
   var md=toMd(m);
   copyText(md,function(ok){
-    var uri=obsUri(m,!ok);
+    var uri=ok?obsUri('new',{file:obsPath(m),overwrite:'true',clipboard:'true'}):obsUri('new',{file:obsPath(m),overwrite:'true',content:md});
     if(!ok&&uri.length>60000){ toast('Nota grande demais pra mandar sem copiar. Use “Baixar como .md”.',5200); return; }
-    if(ED==='claude'){ // dentro do Claude o link externo pode não abrir sozinho: mostra o botão
-      sheet('Enviar pro Obsidian','file-text',[
-        h('p',{class:'note'},ok?'A nota foi copiada. Toque abaixo pra abrir o Obsidian e criar a nota em '+obsPath(m)+'.':'Toque abaixo pra abrir o Obsidian com a nota.'),
-        h('div',{class:'row'},h('a',{class:'btn pri',href:uri},I('file-text'),'Abrir no Obsidian'),h('button',{class:'btn',type:'button',onclick:downloadMd},I('download'),'Baixar .md')),
-        h('p',{class:'note'},'Se o botão não abrir, crie a nota no Obsidian e cole.')]);
-      return;
-    }
-    toast('Abrindo o Obsidian…'); setTimeout(function(){ location.href=uri; },60);
+    openExternal(uri,'Abrir no Obsidian',ok?'A nota foi copiada. Toque abaixo pra criar a nota no Obsidian.':'Toque abaixo pra criar a nota no Obsidian.');
   });
 }
-/* PC com Obsidian aberto (qualquer navegador, inclusive Zen): plugin Local REST API */
-var REST={t:{},ok:null};
-function restOn(){ return ED==='site'&&!!cfg.obs.rest; }
+function openExternal(uri,label,text){
+  if(ED==='claude'){ // dentro do Claude um link externo pode não abrir sozinho: mostra o botão
+    sheet(label,'file-text',[h('p',{class:'note'},text),h('div',{},h('a',{class:'btn pri',href:uri},I('file-text'),label))]); return;
+  }
+  toast('Abrindo o Obsidian…'); setTimeout(function(){ location.href=uri; },60);
+}
+
+/* ================= sincronização: repositório privado no GitHub =================
+   Cada mesa vira mesas/<id>.json. Celular, PC, a Mesa no Claude e o plugin do Obsidian leem e gravam lá.
+   Offline: o que mudar aqui fica marcado e sobe quando a internet voltar. Nada some: conflito vira mescla. */
+var SS=Object.assign({base:{},dead:{},obs:{},seen:{},devs:{},etag:'',tree:null,branch:'',last:0,empty:false},J(LS.get('mesa:sync'),{}));
+var SY={st:'off',code:'',run:null,again:false,t:null,halt:false,ro:false,mcp:null,server:'Github Deep Research',login:''};
+function saveSS(){ LS.set('mesa:sync',JSON.stringify(SS)); if(ED==='claude') dbPut('sync',{kind:'sync',ss:SS}); }
+function ghRepo(){ return String(cfg.sync.repo||'').trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'').replace(/^\/+|\/+$/g,''); }
+function syncOn(){ return ED==='site'?!!(ghRepo()&&cfg.sync.token):!!(ghRepo()&&SY.mcp&&cfg.sync.on); }
 function encPath(p){ return p.split('/').map(encodeURIComponent).join('/'); }
-function restReq(method,path,body,type){
-  var base=String(cfg.obs.restUrl||'https://127.0.0.1:27124').replace(/\/+$/,'');
-  return fetch(base+path,{method:method,referrerPolicy:'no-referrer',headers:Object.assign({'Authorization':'Bearer '+cfg.obs.rest},type?{'content-type':type}:{}),body:body});
+function b64e(s){ var b=new TextEncoder().encode(s), bin=''; for(var i=0;i<b.length;i+=0x8000) bin+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000)); return btoa(bin); }
+function b64d(s){ var bin=atob(String(s||'').replace(/\s/g,'')), b=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) b[i]=bin.charCodeAt(i); return new TextDecoder().decode(b); }
+function pseq(list,fn){ return list.reduce(function(p,x){ return p.then(function(){ return fn(x); }); },Promise.resolve()); }
+function pmap(list,n,fn){ var i=0; function worker(){ if(i>=list.length) return Promise.resolve(); var x=list[i++]; return Promise.resolve(fn(x)).then(worker); } var ws=[]; for(var k=0;k<Math.min(n,list.length);k++) ws.push(worker()); return Promise.all(ws); }
+
+/* ---- site: API do GitHub com a chave (fica só neste aparelho) ---- */
+function ghReq(method,path,body,etag,token){
+  var hd={'Authorization':'Bearer '+(token||cfg.sync.token),'Accept':'application/vnd.github+json'};
+  if(body) hd['Content-Type']='application/json';
+  if(etag) hd['If-None-Match']=etag;
+  return fetch('https://api.github.com'+path,{method:method,headers:hd,body:body?JSON.stringify(body):undefined,cache:'no-store',referrerPolicy:'no-referrer'})
+    .then(function(r){ return r; },function(){ throw {code:'rede'}; });
 }
-function restTest(){
-  return restReq('GET','/').then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ REST.ok=!!d.authenticated; return d.authenticated?'ok':'chave'; }); },function(){ REST.ok=false; return 'rede'; });
+function ghErr(r){
+  return r.json().catch(function(){return {};}).then(function(j){
+    var rem=r.headers.get('x-ratelimit-remaining');
+    var c=r.status===401?'chave':r.status===404?'repo':(r.status===403||r.status===429)&&rem==='0'?'limite':r.status===403?'permissao':(r.status===409||r.status===422)?'conflito':r.status>=500?'instavel':'erro';
+    throw {code:c,status:r.status,msg:j.message||''};
+  });
 }
-function restWrite(m){
-  if(!restOn()||!hasContent(m)) return Promise.resolve(false);
-  return restReq('PUT','/vault/'+encPath(obsPath(m)+'.md'),toMd(m),'text/markdown').then(function(r){ REST.ok=r.ok; return r.ok; },function(){ REST.ok=false; return false; });
-}
-function restOpen(m){ restReq('POST','/open/'+encPath(obsPath(m)+'.md')).catch(function(){}); }
-function restSchedule(m){ if(!restOn()||!cfg.obs.auto||!hasContent(m)||REST.ok===false) return; clearTimeout(REST.t[m.id]); REST.t[m.id]=setTimeout(function(){ restWrite(m); },1500); }
-function restPull(silent){
-  if(!restOn()) return Promise.resolve(0);
-  var dir=obsFolder();
-  return restReq('GET','/vault/'+(dir?encPath(dir)+'/':'')).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
-    var files=(d.files||[]).filter(function(f){return /\.md$/i.test(f);}), n=0;
-    return Promise.all(files.map(function(f){ return restReq('GET','/vault/'+encPath((dir?dir+'/':'')+f)).then(function(r){return r.ok?r.text():'';}).then(function(t){ var r=t&&importOne(t,true); if(r){ n++; r.mesa.obs=f.replace(/\.md$/i,''); saveNow(r.mesa,true); } }).catch(function(){}); })).then(function(){
-      REST.ok=true;
-      if(n){ S.mesas.sort(function(a,b){return b.atualizado-a.atualizado;}); if(S.cur.exemplo&&S.mesas.length&&!$('#inp').value.trim()) S.cur=S.mesas[0]; S.fitted=false; render(true); }
-      if(!silent||n) toast(n?('Atualizei '+n+' mesa'+(n>1?'s':'')+' com o que está no Obsidian.'):'O Obsidian não tem nada mais novo.');
-      return n;
+var GH={
+  branch:function(){
+    if(SS.branch) return Promise.resolve(SS.branch);
+    return ghReq('GET','/repos/'+ghRepo()).then(function(r){ if(!r.ok) return ghErr(r);
+      return r.json().then(function(j){ SS.branch=j.default_branch||'main'; return SS.branch; }); });
+  },
+  list:function(){
+    return GH.branch().then(function(br){
+      return ghReq('GET','/repos/'+ghRepo()+'/git/trees/'+encodeURIComponent(br)+'?recursive=1',null,SS.tree?SS.etag:'').then(function(r){
+        if(r.status===304&&SS.tree) return SS.tree;
+        if(r.status===409||(r.status===404&&SS.branch)){ return r.json().catch(function(){return {};}).then(function(j){ if(r.status===409||/empty/i.test(j.message||'')){ SS.empty=true; SS.tree=[]; SS.etag=''; return []; } throw {code:'repo',status:404}; }); }
+        if(!r.ok) return ghErr(r);
+        return r.json().then(function(j){ SS.empty=false;
+          SS.tree=(j.tree||[]).filter(function(x){return x.type==='blob';}).map(function(x){return {path:x.path,sha:x.sha};});
+          SS.etag=r.headers.get('etag')||''; return SS.tree; });
+      });
     });
-  }).catch(function(){ REST.ok=false; if(!silent) toast('Não achei o Obsidian no PC. Ele está aberto, com o plugin Local REST API ligado?',6000); renderChips(); return 0; });
+  },
+  get:function(path,sha){ return ghReq('GET','/repos/'+ghRepo()+'/git/blobs/'+sha).then(function(r){ if(!r.ok) return ghErr(r); return r.json().then(function(j){ return b64d(j.content); }); }); },
+  put:function(path,text,sha,msg){
+    return GH.branch().then(function(br){
+      var body={message:msg,content:b64e(text)}; if(!SS.empty) body.branch=br; if(sha) body.sha=sha;
+      return ghReq('PUT','/repos/'+ghRepo()+'/contents/'+encPath(path),body).then(function(r){ if(!r.ok) return ghErr(r);
+        SS.etag=''; SS.empty=false; return r.json().then(function(j){ return j.content&&j.content.sha; }); });
+    });
+  },
+  del:function(path,sha,msg){
+    return GH.branch().then(function(br){
+      return ghReq('DELETE','/repos/'+ghRepo()+'/contents/'+encPath(path),{message:msg,sha:sha,branch:br}).then(function(r){ if(!r.ok&&r.status!==404) return ghErr(r); SS.etag=''; return true; });
+    });
+  }
+};
+
+/* ---- Mesa no Claude: o mesmo repositório pelo conector do GitHub da sua conta ---- */
+function mcpErr(e,write){
+  var c=e&&e.code, m=String((e&&e.message)||'');
+  if(c==='tool_error'&&/404|not found/i.test(m)) return {code:'repo'};
+  if(c==='tool_error'&&write&&/403|401|not accessible|permission|forbidden|read-only|readonly/i.test(m)) return {code:'somenteleitura'};
+  if(c==='server_not_connected'||c==='server_not_found'||c==='selection_required') return {code:'semconector'};
+  if(c==='needs_reauth') return {code:'reconectar'};
+  if(c==='not_in_manifest'||c==='blocked_by_policy'||c==='approval_required'||c==='not_granted'||c==='capability_disabled') return {code:'negado'};
+  if(c==='server_unavailable'||c==='rate_limited') return {code:'instavel'};
+  if(c==='tool_error'&&/409|422|sha|conflict/i.test(m)) return {code:'conflito'};
+  return {code:'erro',msg:m};
 }
-function openObsidian(msg){
+function mcpText(res){
+  var blocks=(res&&res.content)||[], txt=null;
+  blocks.forEach(function(b){ if(b&&b.resource&&typeof b.resource.text==='string') txt=b.resource.text; });
+  if(txt!=null) return txt;
+  if(typeof res.payload==='string'&&!/^successfully downloaded/i.test(res.payload)) return res.payload;
+  if(res.payload&&typeof res.payload==='object'&&res.payload.content&&res.payload.encoding==='base64') return b64d(res.payload.content);
+  return null;
+}
+var MC={
+  owner:function(){ return ghRepo().split('/')[0]; }, name:function(){ return ghRepo().split('/')[1]; },
+  call:function(tool,input){ return SY.mcp.callTool(SY.server,tool,input,{cache:false}); },
+  list:function(){
+    function dir(p){
+      return MC.call('get_file_contents',{owner:MC.owner(),repo:MC.name(),path:p,fields:['path','sha','type']}).then(function(res){
+        var x=res.payload; if(typeof x==='string') x=J(x,null);
+        return Array.isArray(x)?x.filter(function(t){return t.type==='file';}).map(function(t){return {path:t.path,sha:t.sha};}):[];
+      },function(e){ var er=mcpErr(e); if(er.code==='repo'&&p!=='mesas') return []; if(er.code==='repo'){ return MC.call('get_file_contents',{owner:MC.owner(),repo:MC.name(),path:'/'}).then(function(){ return []; },function(e2){ throw mcpErr(e2); }); } throw er; });
+    }
+    return Promise.all([dir('mesas'),dir('dispositivos')]).then(function(a){ return a[0].concat(a[1]); });
+  },
+  get:function(path){ return MC.call('get_file_contents',{owner:MC.owner(),repo:MC.name(),path:path}).then(function(res){ var t=mcpText(res); if(t==null) throw {code:'erro'}; return t; },function(e){ throw mcpErr(e); }); },
+  put:function(path,text,sha,msg){
+    if(SY.ro) return Promise.reject({code:'somenteleitura'});
+    var inp={owner:MC.owner(),repo:MC.name(),path:path,content:text,message:msg,branch:SS.branch||'main'}; if(sha) inp.sha=sha;
+    return MC.call('create_or_update_file',inp).then(function(res){
+      var p=res.payload; if(typeof p==='string') p=J(p,p);
+      if(p&&p.content&&p.content.sha) return p.content.sha;
+      var m=JSON.stringify(res.content||'').match(/"sha\\?"\s*:\s*\\?"([0-9a-f]{40})/); return m?m[1]:null;
+    },function(e){ var er=mcpErr(e,true); if(er.code==='somenteleitura') SY.ro=true; throw er; });
+  }
+};
+function backend(){ return ED==='site'?GH:MC; }
+
+/* ---- o que sobe e como ---- */
+function isDirty(m){ var b=SS.base[m.id]; return !b||(m.atualizado||0)>(b.at||0); }
+function pushable(m){ return !!(m&&!m.exemplo&&(m.fios.length||m.cenarios.length||m.dumps.length)); }
+function pendCount(){ return S.mesas.filter(function(m){return pushable(m)&&isDirty(m);}).length+Object.keys(SS.dead).length; }
+function toHub(m){
+  var x=clone(m); delete x.hist; x.formato=2; x.obs=hasContent(m)?obsName(m):(m.obs||'');
+  ['fios','cenarios','abertos'].forEach(function(k){ x[k].forEach(function(i){ delete i.novo; }); });
+  return JSON.stringify(x,null,1);
+}
+function fromHub(x){ var m=clone(x); delete m.formato; m.hist=[]; return fixMesa(m); }
+function snapOf(m){ return {tema:clone(m.tema),fios:clone(m.fios),cenarios:clone(m.cenarios),abertos:clone(m.abertos),resumo:m.resumo}; }
+/* os dois lados mudaram: junta tudo (o mais novo manda no que é igual; nada é perdido) */
+function mergeMesas(a,b){
+  var newer=(b.atualizado||0)>(a.atualizado||0)?b:a, older=newer===a?b:a;
+  var out=clone(newer); out.hist=(a.hist||[]).concat([snapOf(a)]).slice(-20);
+  ['fios','cenarios','abertos'].forEach(function(k){
+    var by={}; out[k].forEach(function(x){ by[x.id]=x; });
+    (older[k]||[]).forEach(function(x){
+      var y=by[x.id]; if(!y){ out[k].push(clone(x)); by[x.id]=x; return; }
+      var same=k==='abertos'?y.texto===x.texto:y.nome===x.nome;
+      if(same&&k==='fios'){ var low={}; y.pontos.forEach(function(p){low[p.toLowerCase()]=1;}); x.pontos.forEach(function(p){ if(!low[p.toLowerCase()]){ y.pontos.push(p); low[p.toLowerCase()]=1; } }); return; } // pontos dos dois lados ficam
+      if(!same){ var c=clone(x); c.id=nextId(out,k==='fios'?'f':k==='cenarios'?'c':'a'); out[k].push(c); by[c.id]=c; } // criados ao mesmo tempo nos dois: fica com os dois
+    });
+  });
+  var seen={}; out.dumps=[];
+  (a.dumps||[]).concat(b.dumps||[]).forEach(function(d){ var k=d.t+'|'+String(d.texto).slice(0,60); if(seen[k]){ if(d.ok) seen[k].ok=true; return; } var c=clone(d); seen[k]=c; out.dumps.push(c); });
+  out.dumps.sort(function(x,y){return x.t-y.t;});
+  var an=a.anot||null, bn=b.anot||null; out.anot=((an&&an.t)||0)>=((bn&&bn.t)||0)?an:bn; if(!out.anot) delete out.anot;
+  out.obs=a.obs||b.obs||''; out.atualizado=Date.now();
+  return fixMesa(out);
+}
+function localById(id){ return S.mesas.filter(function(m){return m.id===id;})[0]; }
+function busyOn(m){ return m===S.cur&&(S.busy||S.editing); }
+function replaceLocal(loc,inc){
+  var hist=inc.hist&&inc.hist.length?inc.hist:(loc.hist||[]);
+  Object.keys(loc).forEach(function(k){ delete loc[k]; }); Object.assign(loc,inc); loc.hist=hist;
+  saveNow(loc,'sync');
+}
+function removeLocal(m){
+  LS.del('mesa:'+m.id); dbDelete(m); LS.set('mesa:index',JSON.stringify(J(LS.get('mesa:index'),[]).filter(function(x){return x!==m.id;})));
+  S.mesas=S.mesas.filter(function(x){return x!==m;});
+  if(S.cur===m){ S.cur=S.mesas[0]||EXEMPLO; S.sel=null; S.fitted=false; closeSheet(); }
+}
+/* chega uma versão de fora: decide entre pegar, juntar ou manter a daqui */
+function reconcile(x,sha){
+  var id=x.id, loc=localById(id), b=SS.base[id];
+  if(loc&&busyOn(loc)) return 0; // você está mexendo nela agora: junto na próxima rodada
+  if(x.apagada){
+    if(!loc){ SS.base[id]={sha:sha,at:x.atualizado||0,dead:1}; return 0; }
+    var keep=b?(isDirty(loc)&&(loc.atualizado||0)>(x.atualizado||0)):((loc.atualizado||0)>(x.atualizado||0));
+    if(keep){ SS.base[id]={sha:sha,at:0}; return 0; } // mudou aqui depois de apagarem lá: volta a existir
+    removeLocal(loc); SS.base[id]={sha:sha,at:x.atualizado||0,dead:1}; SY.gone=(SY.gone||0)+1; return 1;
+  }
+  if(SS.dead[id]){ SS.base[id]={sha:sha,at:0}; return 0; } // apagada aqui: o apagamento sobe
+  var inc=fromHub(x);
+  if(!loc){ S.mesas.push(inc); saveNow(inc,'sync'); SS.base[id]={sha:sha,at:inc.atualizado||0}; SY.novas=(SY.novas||0)+1; return 1; }
+  var dirty=b?isDirty(loc):(loc.atualizado||0)>(inc.atualizado||0);
+  if(!dirty){ replaceLocal(loc,inc); SS.base[id]={sha:sha,at:inc.atualizado||0}; return 1; }
+  replaceLocal(loc,mergeMesas(loc,inc)); SS.base[id]={sha:sha,at:(b&&b.at)||0}; return 1; // continua pendente: sobe já juntada
+}
+function pushAll(B,remote){
+  var list=S.mesas.filter(function(m){ return pushable(m)&&isDirty(m)&&!busyOn(m); });
+  return pseq(list,function(m){
+    var b=SS.base[m.id], r=remote[m.id];
+    if(r&&(!b||b.sha!==r.sha)) return; // tem versão nova lá que ainda não juntei: espera
+    var at=m.atualizado||0, body=toHub(m);
+    return B.put('mesas/'+m.id+'.json',body,r?b.sha:undefined,'Mesa: '+m.tema.titulo).then(function(ns){
+      SS.base[m.id]={sha:ns||'?',at:at}; SY.sent=(SY.sent||0)+1;
+      if(SS.tree){ var t=SS.tree.filter(function(f){return f.path==='mesas/'+m.id+'.json';})[0]; if(t) t.sha=ns||'?'; else SS.tree.push({path:'mesas/'+m.id+'.json',sha:ns||'?'}); }
+    },function(e){ if(e.code==='conflito'){ SY.again=true; SS.etag=''; return; } throw e; });
+  }).then(function(){
+    return pseq(Object.keys(SS.dead),function(id){
+      var r=remote[id], at=SS.dead[id];
+      if(!r){ delete SS.dead[id]; return; } // nunca tinha subido
+      if(SS.base[id]&&SS.base[id].sha!==r.sha) return;
+      var body=JSON.stringify({formato:2,id:id,apagada:true,atualizado:at,obs:SS.obs[id]||''},null,1);
+      return B.put('mesas/'+id+'.json',body,r.sha,'Apagar mesa').then(function(ns){ delete SS.dead[id]; delete SS.obs[id]; SS.base[id]={sha:ns||'?',at:at,dead:1}; },
+        function(e){ if(e.code==='conflito'){ SY.again=true; SS.etag=''; return; } throw e; });
+    });
+  });
+}
+/* nota "Entrada da Mesa" do Obsidian: vira mesa nova e é organizada sozinha */
+function takeEntradas(B,list){
+  var now=Date.now(); Object.keys(SS.seen).forEach(function(k){ if(now-SS.seen[k]>30*864e5) delete SS.seen[k]; });
+  list=list.filter(function(f){ return !SS.seen[f.path+'@'+f.sha]; });
+  if(!list.length||!B.del) return Promise.resolve();
+  var texts=[];
+  return pseq(list,function(f){ return B.get(f.path,f.sha).then(function(t){ t=String(t||'').trim(); SS.seen[f.path+'@'+f.sha]=Date.now(); if(t) texts.push(t); }); })
+  .then(function(){
+    if(texts.length){
+      var m=newMesa(); m.tema.titulo='Do Obsidian'; m.tema.icone='file-text';
+      m.dumps=texts.map(function(t,i){ return {t:Date.now()+i,texto:t,ok:false}; });
+      S.mesas.unshift(m); saveNow(m,'sync'); SY.inbox=m;
+    }
+    return pseq(list,function(f){ return B.del(f.path,f.sha,'Entrada lida pela Mesa').then(function(){ delete SS.seen[f.path+'@'+f.sha]; },function(){}); });
+  });
+}
+/* aparelhos com o plugin do Obsidian ligado (pra mostrar aqui) */
+function readDevs(B,list){
+  var need=list.filter(function(f){ return !SS.devs[f.path]||SS.devs[f.path].sha!==f.sha; });
+  return pmap(need,3,function(f){ return B.get(f.path,f.sha).then(function(t){ var d=J(t,{}); SS.devs[f.path]={sha:f.sha,aparelho:d.aparelho||'',t:d.t||0,versao:d.versao||''}; },function(){}); });
+}
+
+function syncNow(why){
+  if(!syncOn()){ SY.st='off'; paintSync(); return Promise.resolve(); }
+  if(SY.run){ SY.again=true; return SY.run; }
+  if(SY.halt&&why!=='manual'&&why!=='conectar') return Promise.resolve();
+  if(navigator.onLine===false){ SY.st='offline'; paintSync(); return Promise.resolve(); }
+  var B=backend(), changed=0; SY.st='run'; SY.novas=0; SY.gone=0; SY.sent=0; SY.inbox=null; paintSync();
+  SY.run=B.list().then(function(files){
+    var remote={}, entradas=[], devs=[];
+    files.forEach(function(f){ var mm=f.path.match(/^mesas\/([^/]+)\.json$/); if(mm) remote[mm[1]]=f; else if(/^entrada\/[^/]+\.md$/.test(f.path)) entradas.push(f); else if(/^dispositivos\/[^/]+\.json$/.test(f.path)) devs.push(f); });
+    var need=Object.keys(remote).filter(function(id){ var b=SS.base[id]; return !b||b.sha!==remote[id].sha; });
+    return pmap(need,4,function(id){
+      return B.get(remote[id].path,remote[id].sha).then(function(t){ var x=J(t,null);
+        if(x&&x.id===id) changed+=reconcile(x,remote[id].sha);
+        else SS.base[id]={sha:remote[id].sha,at:(SS.base[id]||{}).at||0}; });
+    })
+    .then(function(){ return pushAll(B,remote); })
+    .then(function(){ if(ED!=='site'||SS.readme||files.some(function(f){return f.path==='LEIA-ME.md';})) return; return B.put('LEIA-ME.md',README_TXT,undefined,'Explicação dos dados').then(function(){ SS.readme=1; },function(){ SS.readme=1; }); })
+    .then(function(){ return takeEntradas(B,entradas); })
+    .then(function(){ return readDevs(B,devs); });
+  }).then(function(){ SY.st='ok'; SY.code=''; SY.halt=false; SS.last=Date.now(); },
+    function(e){ var c=(e&&e.code)||'erro';
+      if(c==='rede'){ SY.st='offline'; return; }
+      SY.st='err'; SY.code=c; SY.msg=e&&e.msg;
+      if(c==='chave'||c==='repo'||c==='permissao'||c==='semconector'||c==='negado'||c==='reconectar') SY.halt=true;
+      if(c==='somenteleitura'){ SY.st='ok'; SS.last=Date.now(); }
+  }).then(function(){
+    saveSS(); SY.run=null;
+    if(changed||SY.inbox) afterRemote();
+    paintSync();
+    if(SY.again){ SY.again=false; syncSoon(1200); }
+  });
+  return SY.run;
+}
+var README_TXT='# Dados da Mesa de Pensamento\n\nEste repositório guarda as suas mesas (rei-artur.github.io/mesa). Deixe-o **privado**.\n\n- `mesas/` — uma mesa por arquivo (a Mesa e o plugin do Obsidian leem e gravam aqui sozinhos).\n- `entrada/` — textos da nota "Entrada da Mesa" do Obsidian esperando virar mesa.\n- `dispositivos/` — aparelhos com o Obsidian ligado.\n\nNão precisa mexer à mão. Todo o histórico fica nos commits: dá pra recuperar qualquer versão de uma mesa.\n';
+function syncSoon(ms){ if(!syncOn()) return; clearTimeout(SY.t); SY.t=setTimeout(function(){ syncNow('mudanca'); },ms==null?4000:ms); }
+function afterRemote(){
+  S.mesas.sort(function(a,b){return (b.atualizado||0)-(a.atualizado||0);});
+  var typing=!!$('#inp').value.trim(), wasEx=S.cur.exemplo;
+  if(SY.inbox&&!S.busy&&!typing&&!S.editing){ S.cur=SY.inbox; S.sel=null; S.fitted=false; closeSheet(); render(true); autoRun('obsidian'); }
+  else if(S.cur.exemplo&&S.mesas.length&&!typing){ S.cur=S.mesas[0]; S.fitted=false; render(true); }
+  else { render(wasEx!==!!S.cur.exemplo); if(S.sel&&!S.editing){ if(findItem(S.sel)) openItem(S.sel); else { S.sel=null; closeSheet(); } } }
+  if(SY.inbox&&S.cur!==SY.inbox) toast('Chegou texto do Obsidian: criei a mesa “Do Obsidian”.',4200);
+  else if(SY.gone&&!SY.inbox) toast(SY.gone>1?SY.gone+' mesas foram apagadas em outro aparelho.':'Uma mesa foi apagada em outro aparelho.');
+  if(!$('#sheet').hidden&&$('#syncCard')) openSync();
+}
+function ago(t){ var s=(Date.now()-t)/1000; return s<45?'agora':s<3600?'há '+Math.max(1,Math.round(s/60))+' min':s<86400?'há '+Math.round(s/3600)+' h':fmt(t); }
+var SYNC_ERR={
+  chave:'O GitHub recusou a chave (expirou ou foi apagada).',
+  repo:'Não achei o repositório, ou a chave não tem acesso a ele.',
+  permissao:'A chave só pode ler. Ela precisa de Contents: Read and write.',
+  limite:'Limite do GitHub por agora. Tento de novo sozinho.',
+  instavel:'O GitHub está instável. Tento de novo sozinho.',
+  semconector:'O conector do GitHub não está ligado na sua conta do Claude.',
+  reconectar:'Reconecte o GitHub em Configurações → Conectores do Claude.',
+  negado:'O Claude não liberou o conector do GitHub pra esta página.',
+  somenteleitura:'O conector do GitHub só consegue ler: o que mudar aqui fica só no Claude.',
+  erro:'Erro ao sincronizar. Tento de novo sozinho.'
+};
+function syncText(){
+  if(!syncOn()) return ED==='site'?'Desligada':'Desligada';
+  var n=pendCount();
+  if(SY.st==='run') return 'Sincronizando…';
+  if(SY.st==='offline') return 'Sem internet'+(n?' · '+n+' esperando':'');
+  if(SY.st==='err') return SYNC_ERR[SY.code]||SYNC_ERR.erro;
+  if(SY.ro) return 'Lendo do GitHub · '+(SS.last?ago(SS.last):'');
+  return n?n+' esperando':'Em dia'+(SS.last?' · '+ago(SS.last):'');
+}
+function paintSync(){
+  var d=$('#bMenu .sd'); if(d){ var st=!syncOn()?'off':SY.st==='err'?'err':SY.st==='offline'?'offline':SY.st==='run'?'run':(pendCount()?'run':'ok'); d.className='sd '+st; }
+  var el=$('#syncSt'); if(el) el.textContent=syncText();
+  var bn=$('#banner'); if(bn&&S.cur&&!S.cur.exemplo&&((SY.halt&&!bn.dataset.sync)||(!SY.halt&&bn.dataset.sync))) render();
+}
+
+/* ================= tela de sincronização e Obsidian ================= */
+var SITE_URL='https://rei-artur.github.io/mesa/';
+function newRepoUrl(){ return 'https://github.com/new?owner=%40me&name=mesa-dados&visibility=private&description='+encodeURIComponent('Dados da Mesa de Pensamento (privado)'); }
+function tokenUrl(){ return 'https://github.com/settings/personal-access-tokens/new?name='+encodeURIComponent('Mesa de Pensamento')+'&description='+encodeURIComponent('Sincroniza a Mesa de Pensamento com o repositório mesa-dados')+'&expires_in=none&contents=write'; }
+function connCode(){ return 'MESA1.'+b64e(JSON.stringify({r:ghRepo(),t:cfg.sync.token})); }
+function readConn(v){ v=String(v||'').trim(); var m=v.match(/^MESA1\.([A-Za-z0-9+\/=]+)$/); if(!m) return null; var d=J(b64d(m[1]),null); return d&&d.t?d:null; }
+function stepCard(n,title,body){ return h('div',{class:'card step'},h('div',{class:'sh'},h('span',{class:'sn'},String(n)),h('b',{},title)),body); }
+function obsLive(){ var list=Object.keys(SS.devs).map(function(k){return SS.devs[k];}).filter(function(d){return Date.now()-d.t<14*864e5;}); list.sort(function(a,b){return b.t-a.t;}); return list; }
+function statusCard(){
+  var st=!syncOn()?'off':SY.st==='err'?'err':SY.st==='offline'?'offline':'ok';
+  var ic=st==='err'?'triangle-alert':st==='offline'?'cloud-off':st==='off'?'cloud-off':'circle-check';
+  return h('div',{class:'card',id:'syncCard'},
+    h('div',{class:'sh'},h('span',{class:'si '+st},I(ic)),h('b',{id:'syncSt','aria-live':'polite'},syncText())),
+    syncOn()?h('p',{class:'note'},'Repositório: '+ghRepo()+(SY.ro?' · só leitura':' · cada mudança fica no histórico do GitHub, dá pra recuperar qualquer versão.')):null,
+    SY.st==='err'&&SY.code==='chave'?h('p',{class:'note'},'Crie uma chave nova (passo 2 abaixo) e cole em “Trocar a chave”.'):null,
+    syncOn()?h('div',{class:'row'},
+      h('button',{class:'btn pri',type:'button',onclick:function(){ SY.halt=false; syncNow('manual').then(function(){ if($('#syncCard')) openSync(); }); }},I('refresh-cw'),'Sincronizar agora'),
+      ED==='site'?h('button',{class:'btn',type:'button',onclick:function(){ copyText(connCode(),function(ok){ toast(ok?'Código copiado. No outro aparelho: Menu → Sincronizar → cole no passo 3.':'Não deu pra copiar.',6000); if(!ok) showCopyBox(connCode()); }); }},I('copy'),'Levar pra outro aparelho'):null):null);
+}
+function openSync(msg){
   S.sel=null; S.editing=false; render();
-  var vault=h('input',{type:'text',id:'obsVault',value:cfg.obs.vault,placeholder:'Nome do cofre principal, igual no Obsidian',autocomplete:'off'});
+  if(ED==='claude'){ openSyncClaude(msg); return; }
+  var tk=h('input',{type:'password',id:'syTok',autocomplete:'off',spellcheck:'false',placeholder:'Cole a chave (github_pat_…) ou o código de outro aparelho'});
+  var rp=h('input',{type:'text',id:'syRepo',autocomplete:'off',spellcheck:'false',placeholder:'Vazio = seu-usuario/mesa-dados',value:syncOn()?ghRepo():''});
+  var st=h('p',{class:'note','aria-live':'polite'},msg||'');
+  function connect(){
+    var v=tk.value.trim(), repo=rp.value.trim(), c=readConn(v); if(c){ v=c.t; if(!repo) repo=c.r; }
+    if(!v){ st.textContent='Cole a chave primeiro.'; return; }
+    st.textContent='Conferindo…';
+    var who=repo?Promise.resolve(repo):ghReq('GET','/user',null,'',v).then(function(r){ if(!r.ok) return ghErr(r); return r.json().then(function(j){ return j.login+'/mesa-dados'; }); });
+    who.then(function(rep){ repo=rep.replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'');
+      return ghReq('GET','/repos/'+repo,null,'',v).then(function(r){ if(!r.ok) return ghErr(r); return r.json(); }); })
+    .then(function(j){
+      if(j.private===false){ st.textContent='O repositório '+repo+' está PÚBLICO: qualquer pessoa leria suas mesas. No GitHub: Settings → Change visibility → Private. Depois toque em Conectar de novo.'; return; }
+      if(j.permissions&&j.permissions.push===false){ st.textContent='A chave só pode ler. Crie outra com Contents: Read and write.'; return; }
+      var novo=ghRepo()!==repo; cfg.sync.repo=repo; cfg.sync.token=v; saveCfg();
+      if(novo){ SS.base={}; SS.tree=null; SS.etag=''; SS.devs={}; SS.seen={}; }
+      SS.branch=j.default_branch||'main'; SY.halt=false; saveSS();
+      st.textContent='Conectado. Sincronizando…';
+      syncNow('conectar').then(function(){ openSync(SY.st==='ok'?'Pronto: sincronização ligada neste aparelho.':''); });
+    })
+    .catch(function(e){ var c=e&&e.code;
+      st.textContent=c==='chave'?'O GitHub recusou essa chave. Confira se copiou inteira.':c==='repo'?'Não achei '+(repo||'o repositório')+'. Criou o repositório? Na chave, em Repository access, escolheu ele?':c==='rede'?'Sem internet agora.':'Não deu certo ('+((e&&e.status)||c)+'). Tente de novo.'; });
+  }
+  var setup=[
+    stepCard(1,'Criar o repositório',[h('p',{class:'note'},'Abre o GitHub já preenchido (nome mesa-dados, Private). Só toque em Create repository.'),h('div',{},h('a',{class:'btn',href:newRepoUrl(),target:'_blank',rel:'noopener noreferrer'},I('plus'),'Criar no GitHub'))]),
+    stepCard(2,'Criar a chave',[h('p',{class:'note'},'Abre a página da chave já preenchida. Em Repository access, escolha Only select repositories → mesa-dados. Depois Generate token e copie.'),h('div',{},h('a',{class:'btn',href:tokenUrl(),target:'_blank',rel:'noopener noreferrer'},I('key-round'),'Criar a chave'))]),
+    stepCard(3,syncOn()?'Trocar a chave':'Colar aqui',[h('div',{class:'fld'},tk),h('details',{},h('summary',{class:'tiny'},'Usou outro nome no repositório?'),h('div',{class:'fld',style:'margin-top:8px'},h('label',{for:'syRepo',class:'lbl'},'Repositório'),rp)),
+      h('div',{class:'row'},h('button',{class:'btn pri',type:'button',onclick:connect},I('check'),'Conectar')),st])
+  ];
+  var body=[];
+  if(!syncOn()){
+    body.push(h('p',{class:'note'},'Suas mesas ficam num repositório privado seu no GitHub. Aí celular, PC, Obsidian e a Mesa no Claude ficam iguais, sozinhos, sem botão. Uma vez só, uns 3 minutos:'));
+    body=body.concat(setup);
+  } else {
+    if(msg) body.push(h('p',{class:'note',style:'color:var(--good);font-weight:650'},msg));
+    body.push(statusCard(),obsCard());
+    body.push(h('details',{},h('summary',{class:'lbl',style:'cursor:pointer'},'Chave e repositório'),h('div',{class:'bd2'},setup.slice(1),
+      h('button',{class:'btn dng',type:'button',onclick:function(){ cfg.sync.token=''; saveCfg(); SY.st='off'; paintSync(); openSync('Desconectado deste aparelho. Suas mesas continuam aqui e no GitHub.'); }},I('cloud-off'),'Desconectar deste aparelho'))));
+  }
+  sheet('Sincronizar','refresh-cw',body);
+}
+function obsCard(){
+  var live=obsLive();
+  var vault=h('input',{type:'text',id:'obsVault',value:cfg.obs.vault,placeholder:'Vazio = o cofre aberto por último',autocomplete:'off'});
   var pasta=h('input',{type:'text',id:'obsPasta',value:cfg.obs.pasta,placeholder:'Mesas'});
   var areas=h('input',{type:'text',id:'obsAreas',value:cfg.obs.areas,placeholder:'Pessoal, Irlanda, Trabalho, Projetos, Dev'});
-  function store(){ cfg.obs.vault=vault.value.trim(); cfg.obs.pasta=pasta.value.trim(); cfg.obs.areas=areas.value; saveCfg(); }
+  function store(){ cfg.obs.vault=vault.value.trim(); cfg.obs.pasta=pasta.value.trim()||'Mesas'; cfg.obs.areas=areas.value; saveCfg(); }
   [vault,pasta,areas].forEach(function(x){ x.addEventListener('change',store); });
-  var body=[
-    msg?h('p',{class:'note',style:'color:var(--bad)'},msg):null,
-    h('div',{class:'card'},
-      h('div',{class:'lbl'},'Onde as mesas ficam'),
-      h('p',{class:'note'},'No seu cofre principal, numa pasta só. Cada nota ganha a propriedade “área”, então dá pra ver as mesas de Irlanda, Trabalho etc. sem espalhar pastas.'),
-      h('div',{class:'fld'},h('label',{for:'obsVault',class:'lbl'},'Cofre'),vault),
-      h('div',{class:'fld'},h('label',{for:'obsPasta',class:'lbl'},'Pasta'),pasta),
-      h('div',{class:'fld'},h('label',{for:'obsAreas',class:'lbl'},'Áreas (separadas por vírgula)'),areas),
-      h('div',{class:'row'},h('button',{class:'btn pri',type:'button',onclick:function(){ store(); if(S.cur.exemplo){ toast('Salvo. Crie uma mesa pra enviar.'); closeSheet(); return; } sendObsidian(); }},I('share-2'),'Salvar e enviar esta mesa'))),
-    ED==='site'?h('div',{class:'card'},
-      h('div',{class:'lbl'},'Do Obsidian pra Mesa (celular)'),
-      h('p',{class:'note'},'Instale a Mesa na tela inicial pelo Chrome (menu ⋮ → Instalar app). Aí, no Obsidian ou em qualquer app, é só usar Compartilhar → Mesa: uma nota de mesa reabre a mesa; qualquer outro texto vira despejo.')):null
-  ];
-  if(ED==='site'){
-    var key=h('input',{type:'password',id:'obsRest',value:cfg.obs.rest,placeholder:'Chave do plugin (API Key)',autocomplete:'off'});
-    var url=h('input',{type:'text',id:'obsUrl',value:cfg.obs.restUrl});
-    var auto=h('input',{type:'checkbox',id:'obsAuto',checked:cfg.obs.auto});
-    var st=h('p',{class:'note','aria-live':'polite'},REST.ok===true?'Conectado.':REST.ok===false&&cfg.obs.rest?'Sem conexão agora.':'');
-    auto.addEventListener('change',function(){ cfg.obs.auto=auto.checked; saveCfg(); });
-    body.push(h('div',{class:'card'},
-      h('div',{class:'lbl'},'PC: sincronizar sozinho (qualquer navegador, inclusive Zen)'),
-      h('ol',{class:'steps'},
-        h('li',{},'No Obsidian do PC, instale o plugin da comunidade “Local REST API” e ative.'),
-        h('li',{},'Abra ',h('a',{href:'https://127.0.0.1:27124/',target:'_blank',rel:'noopener noreferrer'},'127.0.0.1:27124'),' uma vez e aceite o certificado.'),
-        h('li',{},'Cole aqui a API Key que aparece nas configurações do plugin.')),
-      h('div',{class:'fld'},h('label',{for:'obsRest',class:'lbl'},'API Key'),key),
-      h('div',{class:'fld'},h('label',{for:'obsUrl',class:'lbl'},'Endereço'),url),
-      h('label',{class:'check',for:'obsAuto'},auto,h('span',{},'Gravar sozinho a cada mudança e ler as mesas novas ao abrir')),
-      h('div',{class:'row'},
-        h('button',{class:'btn pri',type:'button',onclick:function(){ cfg.obs.rest=key.value.trim(); cfg.obs.restUrl=url.value.trim()||'https://127.0.0.1:27124'; saveCfg(); if(!cfg.obs.rest){ st.textContent='Desligado.'; return; } st.textContent='Testando…';
-          restTest().then(function(r){ st.textContent=r==='ok'?'Conectado ao Obsidian.':r==='chave'?'O Obsidian respondeu, mas recusou a chave.':'Não achei o Obsidian. Ele está aberto? Aceitou o certificado no passo 2?'; if(r==='ok'){ restPull(false); S.mesas.forEach(function(m){ restWrite(m); }); } renderChips(); }); }},I('check'),'Salvar e testar'),
-        cfg.obs.rest?h('button',{class:'btn',type:'button',onclick:function(){ restPull(false); }},I('download'),'Ler do Obsidian'):null),
-      st));
+  var fields=h('details',{},h('summary',{class:'tiny',style:'cursor:pointer'},'Cofre, pasta e áreas'),h('div',{class:'bd2'},
+    h('div',{class:'fld'},h('label',{for:'obsVault',class:'lbl'},'Cofre'),vault),
+    h('div',{class:'fld'},h('label',{for:'obsPasta',class:'lbl'},'Pasta das mesas'),pasta),
+    h('div',{class:'fld'},h('label',{for:'obsAreas',class:'lbl'},'Áreas (a IA escolhe uma pra cada mesa)'),areas)));
+  if(live.length){
+    return h('div',{class:'card'},h('div',{class:'sh'},h('span',{class:'si ok'},I('file-text')),h('b',{},'Obsidian ligado')),
+      h('p',{class:'note'},live.map(function(d){return (d.aparelho||'aparelho')+' · '+ago(d.t);}).join(' · ')+'. As notas ficam na pasta '+obsFolder()+' e se atualizam sozinhas. O que você escrever em “Minhas anotações” volta pra cá; o que cair na nota “Entrada da Mesa” vira mesa nova.'),
+      fields,h('details',{},h('summary',{class:'tiny',style:'cursor:pointer'},'Instalar em outro aparelho'),h('div',{class:'bd2'},obsSteps())));
   }
-  sheet('Obsidian','file-text',body);
+  return h('div',{class:'card'},h('div',{class:'sh'},h('span',{class:'si'},I('file-text')),h('b',{},'Obsidian automático')),
+    h('p',{class:'note'},'Uma vez só, com o Obsidian instalado neste aparelho:'),obsSteps(),fields);
 }
+function obsSteps(){
+  return h('ol',{class:'steps'},
+    h('li',{},'Instale o plugin Templater (se o Obsidian pedir, ative os plugins da comunidade). ',h('a',{href:obsUri('show-plugin',{id:'templater-obsidian'})},'Abrir no Obsidian')),
+    h('li',{},h('button',{class:'btn pri',type:'button',onclick:installObsidian},I('download'),'Instalar a sincronização')),
+    h('li',{},'Na nota que abrir, siga o passo escrito nela (é 1 comando).'));
+}
+function obsInstaller(){
+  var conf={repo:ghRepo(),token:cfg.sync.token,pasta:obsFolder(),intervalo:60,autoUpdate:true,entrada:true};
+  var code=['<%*',
+    'const A=tp.app||app, N=tp.obsidian.Notice, BASE="'+SITE_URL+'obsidian/", ID="mesa-pensamento-sync", conf='+JSON.stringify(conf)+';',
+    'const dir=A.vault.configDir+"/plugins/"+ID;',
+    'const get=async(f)=>(await tp.obsidian.requestUrl({url:BASE+f+"?t="+Date.now()})).text;',
+    'try{',
+    '  const man=await get("manifest.json"), js=await get("main.js");',
+    '  if(!(await A.vault.adapter.exists(dir))) await A.vault.adapter.mkdir(dir);',
+    '  await A.vault.adapter.write(dir+"/manifest.json",man);',
+    '  await A.vault.adapter.write(dir+"/main.js",js);',
+    '  await A.vault.adapter.write(dir+"/data.json",JSON.stringify(conf));',
+    '  await A.plugins.loadManifests();',
+    '  if(A.plugins.enabledPlugins.has(ID)) await A.plugins.disablePlugin(ID);',
+    '  await A.plugins.enablePluginAndSave(ID);',
+    '  new N("Mesa instalada no Obsidian. As mesas vão aparecer na pasta "+conf.pasta+".",9000);',
+    '  const me=tp.config.target_file; setTimeout(()=>A.fileManager.trashFile(me),1500);',
+    '}catch(e){ new N("Não consegui instalar: "+e.message,12000); }',
+    '%>'].join('\n');
+  return ['# Instalar a Mesa no Obsidian','','Falta 1 passo:','',
+    '1. Abra a **paleta de comandos**: puxe a nota pra baixo com o dedo (ou toque no menu e em *Paleta de comandos*).',
+    '2. Escreva **replace** e toque em **Templater: Replace templates in the active file**.','',
+    'Aparece “Mesa instalada no Obsidian” e esta nota vai sozinha pra lixeira.','','%%',code,'%%',''].join('\n');
+}
+function installObsidian(){
+  if(!syncOn()){ toast('Ligue a sincronização primeiro.'); return; }
+  var uri=obsUri('new',{file:'Instalar a Mesa',overwrite:'true',content:obsInstaller()});
+  openExternal(uri,'Abrir no Obsidian','Toque abaixo: o Obsidian abre uma nota com o último passo.');
+}
+/* Mesa no Claude: usa o conector do GitHub da sua conta */
+function openSyncClaude(msg){
+  var rp=h('input',{type:'text',id:'syRepo',autocomplete:'off',spellcheck:'false',placeholder:'seu-usuario/mesa-dados',value:ghRepo()||(SY.login?SY.login+'/mesa-dados':'')});
+  var st=h('p',{class:'note','aria-live':'polite'},msg||'');
+  if(!SY.mcp){
+    sheet('Sincronizar','refresh-cw',[h('p',{class:'note'},'Pra ler e gravar no mesmo repositório da Mesa do site, esta página precisa do conector do GitHub da sua conta do Claude (Configurações → Conectores). Sem ele, as mesas daqui ficam salvas só na sua conta do Claude.')]);
+    return;
+  }
+  if(!rp.value&&SY.mcp){ SY.mcp.callTool(SY.server,'get_me',{},{cache:false}).then(function(r){ var p=r.payload; if(typeof p==='string') p=J(p,{}); if(p&&p.login){ SY.login=p.login; if(!rp.value) rp.value=p.login+'/mesa-dados'; } },function(){}); }
+  function connect(){
+    var repo=rp.value.trim().replace(/^https?:\/\/github\.com\//,''); if(!/^[^\/\s]+\/[^\/\s]+$/.test(repo)){ st.textContent='Escreva usuario/repositorio.'; return; }
+    cfg.sync.repo=repo; cfg.sync.on=true; saveCfg(); SS.base={}; SS.tree=null; SY.halt=false; SY.ro=false; saveSS();
+    st.textContent='Conectando…';
+    syncNow('conectar').then(function(){ openSync(SY.st==='ok'?(SY.ro?'Conectado só pra leitura: o conector do GitHub não deixou gravar.':'Pronto: esta Mesa usa o mesmo repositório do site.'):''); });
+  }
+  var body=[
+    h('p',{class:'note'},'Usa o conector do GitHub da sua conta pra ler e gravar no mesmo repositório da Mesa do site. Assim o que você fizer aqui aparece no celular e no Obsidian.'),
+    syncOn()?statusCard():null,
+    h('div',{class:'fld'},h('label',{for:'syRepo',class:'lbl'},'Repositório'),rp),
+    h('div',{class:'row'},h('button',{class:'btn pri',type:'button',onclick:connect},I('check'),syncOn()?'Conectar de novo':'Conectar'),
+      syncOn()?h('button',{class:'btn',type:'button',onclick:function(){ cfg.sync.on=false; saveCfg(); SY.st='off'; paintSync(); openSync('Desligado. As mesas continuam salvas na sua conta do Claude.'); }},'Desligar'):null),
+    st,
+    SY.ro?h('p',{class:'note'},'Pra gravar daqui, o conector do GitHub precisa de permissão de escrita no repositório. Sem isso, esta Mesa lê tudo do GitHub e o que você fizer aqui fica só no Claude.'):null];
+  sheet('Sincronizar','refresh-cw',body);
+}
+
+/* ================= instalar na tela inicial (Opera, Chrome, Samsung…) ================= */
+function standalone(){ try{ return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true; }catch(e){ return false; } }
+function installApp(){
+  if(S.bip){ var p=S.bip; S.bip=null; p.prompt(); (p.userChoice||Promise.resolve()).then(function(c){ if(c&&c.outcome==='accepted') toast('Instalada. Abra pelo ícone da tela inicial.'); }); closeSheet(); return; }
+  var ua=navigator.userAgent||'', t;
+  if(/OPR\/|Opera/i.test(ua)) t='No Opera: toque nos três pontinhos (⋮) e em “Tela inicial” (Adicionar à tela inicial). A Mesa abre como app, em tela cheia.';
+  else if(/SamsungBrowser/i.test(ua)) t='No Samsung Internet: menu (≡) → Adicionar página a → Tela inicial.';
+  else if(/Firefox\//i.test(ua)) t=/Android/i.test(ua)?'No Firefox: menu (⋮) → Instalar ou Adicionar à tela inicial.':'No Zen/Firefox do PC não existe “instalar app”: fixe a aba da Mesa (clique direito → Fixar aba). Funciona igual, inclusive offline.';
+  else if(/iPhone|iPad/i.test(ua)) t='No Safari: Compartilhar → Adicionar à Tela de Início.';
+  else t='No menu do navegador (⋮), toque em “Instalar app” ou “Adicionar à tela inicial”.';
+  sheet('Instalar na tela inicial','download',[h('p',{class:'note'},t),h('p',{class:'note'},'Instalada, ela abre mais rápido e funciona sem internet.')]);
+}
+window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); S.bip=e; });
+
+/* ================= organizar sozinho o que ficou guardado ================= */
+function autoRun(why){
+  var m=S.cur; if(!m||m.exemplo||S.busy||cfg.manual||!aiReady()||navigator.onLine===false) return;
+  var p=pending(); if(!p.length) return;
+  var key=m.id+':'+p.map(function(d){return d.t;}).join(','); S.autoDone=S.autoDone||{}; if(S.autoDone[key]) return; S.autoDone[key]=1;
+  toast(why==='obsidian'?'Chegou texto do Obsidian. Organizando…':'Organizando o que ficou guardado…',3200);
+  run('',{save:true});
+}
+
 /* chegou algo pelo Compartilhar do Android (ou ?text=) */
 function handleShared(text){
   text=String(text||'').trim(); if(!text) return;
@@ -1433,6 +1833,7 @@ function dbWrite(m){
   while(JSON.stringify(body).length>230000&&body.dumps.length>1) body.dumps.shift();
   S.dbq[m.id]=(S.dbq[m.id]||Promise.resolve()).then(function(){ return col.doc('mesa-'+m.id).set(body); }).catch(function(){ if(!S.dbWarn){ S.dbWarn=1; toast('Não consegui salvar na sua conta do Claude agora; ficou salvo neste aparelho.',5200); } });
 }
+function dbPut(id,body){ var col=dbCol(); if(!col) return; S.dbT=S.dbT||{}; clearTimeout(S.dbT['__'+id]); S.dbT['__'+id]=setTimeout(function(){ col.doc(id).set(clone(body)).catch(function(){}); },600); }
 function dbDelete(m){ if(S.dbT) clearTimeout(S.dbT[m.id]); var col=dbCol(); if(col) col.doc('mesa-'+m.id).delete().catch(function(){}); }
 /* mesas da 1ª versão (feita no começo, dentro do Claude) viram o formato atual */
 function fromV1(x){
@@ -1451,11 +1852,14 @@ function dbLoad(){
   var col=dbCol(); if(!col) return Promise.resolve();
   return col.get().then(function(snap){
     var n=0;
-    snap.docs.forEach(function(d){ var x=d.data(); if(x&&x.kind==='mesa'&&x.model) x=fromV1(x); if(!x||x.kind!=='mesa2'||!Array.isArray(x.fios)) return;
+    snap.docs.forEach(function(d){ var x=d.data();
+      if(x&&x.kind==='cfg'&&x.cfg){ var tier=cfg.tier; Object.assign(cfg,clone(x.cfg)); cfg.provider='claude'; if(!LS.get('mesa:cfg')) LS.set('mesa:cfg',JSON.stringify(cfg)); else cfg.tier=x.cfg.tier||tier; return; }
+      if(x&&x.kind==='sync'&&x.ss){ if((x.ss.last||0)>(SS.last||0)) Object.assign(SS,clone(x.ss)); return; }
+      if(x&&x.kind==='mesa'&&x.model) x=fromV1(x); if(!x||x.kind!=='mesa2'||!Array.isArray(x.fios)) return;
       var mesa=fixMesa(clone(x)); delete mesa.kind; var ex=S.mesas.filter(function(y){return y.id===mesa.id;})[0];
       if(ex&&(ex.atualizado||0)>=(mesa.atualizado||0)) return;
       mesa.hist=ex?ex.hist:[]; if(ex) S.mesas=S.mesas.filter(function(y){return y!==ex;}); S.mesas.push(mesa); saveNow(mesa,'db'); n++; });
-    S.mesas.forEach(function(m){ if(!snap.docs.some(function(d){return d.id==='mesa-'+m.id;})) dbSave(m); });
+    S.mesas.forEach(function(m){ if(!m.exemplo&&!snap.docs.some(function(d){return d.id==='mesa-'+m.id;})) dbSave(m); });
     if(n){ S.mesas.sort(function(a,b){return b.atualizado-a.atualizado;}); if(S.cur.exemplo||!S.mesas.some(function(y){return y===S.cur;})) S.cur=S.mesas[0]; S.fitted=false; render(true); }
   }).catch(function(){});
 }
@@ -1463,10 +1867,10 @@ function initClaude(){
   if(ED!=='claude') return;
   var c=window.claude; if(!c||!c.use){ render(); return; }
   var safe=function(p){ return p.then(function(x){return x;},function(){return null;}); };
-  Promise.all([safe(c.use('sample')),safe(c.use('db')),safe(c.use('user')),safe(c.use('downloads'))]).then(function(r){
-    SAMPLE=r[0]; DB=r[1]; DLS=r[3];
+  Promise.all([safe(c.use('sample')),safe(c.use('db')),safe(c.use('user')),safe(c.use('downloads')),safe(c.use('mcp'))]).then(function(r){
+    SAMPLE=r[0]; DB=r[1]; DLS=r[3]; SY.mcp=r[4];
     return (r[2]&&r[2].id?r[2].id().then(function(x){return x;},function(){return null;}):Promise.resolve(null)).then(function(uid){ UID=uid; return dbLoad(); });
-  }).then(function(){ render(); });
+  }).then(function(){ render(); paintSync(); if(syncOn()) syncNow('inicio').then(function(){ autoRun('inicio'); }); else setTimeout(function(){autoRun('inicio');},800); });
 }
 
 /* ================= chips da caixa ================= */
@@ -1480,7 +1884,6 @@ function renderChips(){
   var pc=pending().length;
   if(pc&&!S.busy) box.append(chip('history','Processar guardados ('+pc+')',function(){run('',{save:true});},false,'pend'));
   if(pc&&!S.busy&&S.alt) box.append(chip('refresh-cw','Tentar com '+PROV[S.alt],function(){ var p=S.alt; S.alt=false; run('',{save:true,prov:p}); },false,'pend'));
-  if(restOn()&&REST.ok===false&&!m.exemplo) box.append(chip('refresh-cw','Reconectar Obsidian do PC',function(){ restTest().then(function(r){ if(r==='ok'){ S.mesas.forEach(function(x){ restWrite(x); }); restPull(true); toast('Obsidian conectado.'); } else toast('O Obsidian do PC ainda não respondeu.'); renderChips(); }); }));
   if(m.exemplo||!(m.fios.length||m.cenarios.length)) { box.hidden=!box.childNodes.length; syncCompH(); return; }
   var list=[];
   function go(t){ return function(){ var ta=$('#inp'); if(ta.value.trim()){ run(ta.value.trim()+'\n\n'+t,{save:true}); } else run(t,{}); }; }
@@ -1576,21 +1979,27 @@ function bind(){
   });
   var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(function(){ syncCompH(); if(S.view==='cmp') renderCmp(); else render(); },150); });
   if(window.ResizeObserver) new ResizeObserver(syncCompH).observe($('#comp'));
-  document.addEventListener('visibilitychange',function(){ if(document.hidden&&S.cur) saveNow(S.cur); });
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){ if(S.cur) saveNow(S.cur); if(syncOn()&&pendCount()) syncNow('saida'); }
+    else { syncNow('volta'); paintSync(); }
+  });
   window.addEventListener('pagehide',function(){ if(S.cur) saveNow(S.cur); });
-  window.addEventListener('online',function(){ if(pending().length&&cfg.key&&!cfg.manual) toast('Internet de volta. Toque em “Processar guardados”.'); renderChips(); });
+  window.addEventListener('online',function(){ renderChips(); syncNow('online').then(function(){ autoRun('online'); }); });
+  window.addEventListener('offline',function(){ if(syncOn()){ SY.st='offline'; paintSync(); } });
+  setInterval(function(){ if(!document.hidden) syncNow('tempo'); else paintSync(); },45000);
 }
 
 /* ================= início ================= */
 loadMesas();
 S.cur=S.mesas[0]||EXEMPLO;
 bind(); syncCompH(); render(true);
+paintSync();
 if(ED==='site'){
   checkShared();
-  if(restOn()&&cfg.obs.auto) restPull(true);
+  if(syncOn()) syncNow('inicio').then(function(){ autoRun('inicio'); }); else setTimeout(function(){ autoRun('inicio'); },800);
   if('serviceWorker' in navigator && location.protocol==='https:'){ window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
 } else initClaude();
-window.__mesa={REST:REST,restPull:restPull,restWrite:restWrite,handleShared:handleShared,obsUri:obsUri,obsPath:obsPath,sendObsidian:sendObsidian,S:S,merge:merge,layout:layout,cfg:cfg,parseLoose:parseLoose,rankModels:rankModels,toMd:toMd,applyOut:applyOut,checkConta:checkConta,importText:importText,regras:regras};
+window.__mesa={SS:SS,SY:SY,syncNow:syncNow,save:save,saveNow:saveNow,deleteMesa:deleteMesa,pending:pending,autoRun:autoRun,connCode:connCode,pendCount:pendCount,syncText:syncText,mergeMesas:mergeMesas,obsInstaller:obsInstaller,toHub:toHub,handleShared:handleShared,obsUri:obsUri,obsPath:obsPath,sendObsidian:sendObsidian,openSync:openSync,S:S,merge:merge,layout:layout,cfg:cfg,parseLoose:parseLoose,rankModels:rankModels,toMd:toMd,applyOut:applyOut,checkConta:checkConta,importText:importText,regras:regras};
 })();
 </script>
 </body>

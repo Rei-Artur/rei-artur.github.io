@@ -1,0 +1,10 @@
+{
+  "id": "mesa-pensamento-sync",
+  "name": "Mesa de Pensamento Sync",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "Mantém as mesas da Mesa de Pensamento como notas no seu cofre, sozinho: notas atualizadas, anotações de volta pra Mesa e uma nota de Entrada.",
+  "author": "Rei-Artur",
+  "authorUrl": "https://rei-artur.github.io/mesa/",
+  "isDesktopOnly": false
+}
